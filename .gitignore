@@ -55,7 +55,14 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
+envs
 .env
 
 # next.js build output
 .next
+
+# Tern
+.tern-port
+
+# TLS certs
+tls

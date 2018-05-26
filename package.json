@@ -1,0 +1,23 @@
+{
+  "name": "storage",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajpauwels/storage.git"
+  },
+  "author": "Alexandre Pauwels",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ajpauwels/storage/issues"
+  },
+  "homepage": "https://github.com/ajpauwels/storage#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "winston": "^3.0.0-rc5"
+  }
+}
