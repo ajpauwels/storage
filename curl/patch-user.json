@@ -1,0 +1,9 @@
+{
+	"info": {
+		"testpatch": "testpatchval"
+	},
+	"aliases": {
+		"blabla": true,
+		"ajp": false
+	}
+}

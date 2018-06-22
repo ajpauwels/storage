@@ -61,7 +61,7 @@ envs
 # next.js build output
 .next
 
-# Tern
+# tern-port file
 .tern-port
 
 # TLS certs
