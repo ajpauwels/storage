@@ -18,7 +18,7 @@ import { errorHandler, ErrorWithStatusCode as Error } from './libs/error-handler
 
 // Routing modules
 import indexRoutes from './routes/index';
-import usersRoutes from './routes/users';
+import usersRoutes from './routes/user';
 
 // Establish which zone we're running in
 let zone = process.env['ZONE'] || 'dev';
@@ -51,6 +51,7 @@ const port = process.env['PORT'] || 3000;
 // Get the SSL keys
 const tlsKey = fs.readFileSync('./tls/storage.key.pem');
 const tlsCert = fs.readFileSync('./tls/storage.intermediate.cert.pem');
+const caCert = fs.readFileSync('./tls/intermediate.root.cert.pem');
 
 // Create the express app
 const app = express();
@@ -60,8 +61,7 @@ app.use(bodyParser.json({
 	type: [
 		'application/json',
 		'application/json-patch+json',
-		'application/merge-patch+json',
-		'test'
+		'application/merge-patch+json'
 	]
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -76,7 +76,12 @@ app.use(errorHandler);
 // Start listening for HTTPS requests
 const httpsServer = https.createServer({
 	key: tlsKey,
-	cert: tlsCert
+	cert: tlsCert,
+	ca: caCert,
+	requestCert: true,
+	rejectUnauthorized: true,
+	secureProtocol: 'TLSv1_2_method',
+	ecdhCurve: 'auto'
 }, app).listen(port, () => {
 	logger.info(`Started in ${zone.toUpperCase()} zone listening on port ${port}`);
 });

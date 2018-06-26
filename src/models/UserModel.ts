@@ -34,7 +34,7 @@ userSchema.statics.userIDFromCertificate = function(cert: string): string {
 	return userID;
 };
 
-userSchema.statics.getInfo = function(userID: )
+// userSchema.statics.getInfo = function(userID: )
 
 userSchema.statics.getUser = function(userID: string): Promise<IUser> {
 	if (userID.length < 1) {

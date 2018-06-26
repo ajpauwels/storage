@@ -41,10 +41,21 @@ router.get('/info/:namespace', [
 		.isLength({ min: 1 })
 		.trim()
 		.escape(),
-	header('I-Am')
+	header('I-Am-Alias')
 		.isAlphanumeric()
 		.isLength({ min: 1 })
-		.trim(),
+		.trim()
+		.optional(),
+	header('I-Am-PubCert')
+		.isAlphanumeric()
+		.isLength({ min: 1 })
+		.trim()
+		.optional(),
+	header('I-Am-ID')
+		.isAlphanumeric()
+		.isLength({ min: 1 })
+		.trim()
+		.optional(),
 	header('Signature')
 		.isAlphanumeric()
 		.isLength({ min: 1 })
