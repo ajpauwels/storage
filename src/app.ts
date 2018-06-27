@@ -5,11 +5,13 @@ import express from 'express';
 import https from 'https';
 import mongoose from 'mongoose';
 import bluebird from 'bluebird';
+import { TLSSocket } from 'tls';
 
 // Third-party middleware
 import bodyParser from 'body-parser';
 
 // Local libs
+import { default as User } from './models/UserModel';
 import Logger from './libs/logger';
 const logger = Logger.createLogger(__filename);
 
@@ -65,6 +67,23 @@ app.use(bodyParser.json({
 	]
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// Extract the client cert and compute user ID
+app.use((req, res, next) => {
+	const tlsSocket: TLSSocket = req.socket as TLSSocket;
+	const clientCert = tlsSocket.getPeerCertificate();
+	const certBuf = clientCert.raw;
+	const b64Cert = certBuf.toString('base64');
+	const userID = User.userIDFromCertificate(b64Cert);
+
+	res.locals.user = {
+		id: userID,
+		b64Cert,
+		cert: clientCert
+	};
+
+	return next();
+});
 
 // Attach express routes
 app.use('/', indexRoutes);

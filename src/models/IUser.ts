@@ -1,8 +1,7 @@
 export interface IUserData {
 	_id: string;
 	cert: string;
-	info: { [key: string]: any };
-	aliases: string[];
+	info: { [key: string]: any }
 }
 
 export default interface IUser extends IUserData {
@@ -32,23 +31,6 @@ export default interface IUser extends IUserData {
 	 * @throws 409 Conflict if user already exists
 	 */
 	createUser(cert: string, aliases?: string & string[]): Promise<IUser>;
-
-	/**
-	 * Adds one or more aliases to the specified user if it exists
-	 *
-	 * @param {String} user Identifying document of the user, this may be any of the following:
-	 *                      1. Alias of the user to modify
-	 *                      2. User ID of the user to modify (hash of the public cert)
-	 *                      3. Public certificate of the user
-	 * @param {String|Array} aliases One or more aliases to add to the specified user
-	 * @returns {Object} Contains two fields: added and notAdded. The added field is an array of
-	 *                   strings containing all the aliases that were added to the user. The notAdded
-	 *                   field is an array of objects, each of which contains an alias, statusCode, and
-	 *                   message field. These give you the aliases that weren't added and why.
-	 * @throws 400 Bad Request is user param is not a string or aliases is not a string or array
-	 * @throws 404 Not Found if user doesn't exist
-	 */
-	addAliases(user: string, aliases: string & string[]): string[];
 
 	/**
 	 * Creates a user ID from a public certificate. Currently, this means
