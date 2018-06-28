@@ -1,7 +1,10 @@
 {
 	"info": {
 		"mywebsite": {
-			"firstField": "firstValue"
+			"firstField": "bloop",
+			"secondField": {
+				"feiuj": "edujhi"
+			}
 		}
 	}
 }

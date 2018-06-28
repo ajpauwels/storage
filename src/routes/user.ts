@@ -4,7 +4,7 @@ import { param, body, query, header, validationResult, Result } from 'express-va
 import { TLSSocket } from 'tls';
 import path from 'path';
 import jsonpatch, { validate } from 'fast-json-patch';
-import { default as User } from '../models/UserModel';
+import { default as User, UserModel } from '../models/UserModel';
 import { default as IUser } from '../models/IUser';
 
 // Local libs
@@ -104,76 +104,40 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
 
 /**
  * Patches the specified user. Accepts 'info' as a param in the PATCH body.
- * The 'info' param must be an object and can be one of two things:
- * 1. JSON Patch
- *    Specify the 'Content-Type: application/json-patch+json' header. Performs an RFC6902
- *    JSON patch on the user's info object.
- * 2. Merge Patch
- *    Specify the 'Content-Type: application/merge-patch+json' header. Performs an approximation
- *    of the RFC7386 merge patch on the user's info object. Accepts an object which contains just
- *    the values which need to be changed. To delete a key, specify its value as null. The provided
- *    object is compared to an empty object to generate an RFC6902 JSON patch. The patch list is
- *    iterated through and all values set to null are replaced with remove operations. The patch is
- *    then applied to the user's info block.
+ * The 'info' param must be an object and is structured as such:
+ * {
+ *     "info": {
+ *         "[namespace]": {
+ *             "[field1Name]": [field1Value]
+ *             "[field2Name]": {
+ *                 "[subField1Name]": [subField1Value]
+ *             }
+ *             ...
+ *         }
+ *     }
+ * }
  */
 router.patch('/', [
 	body('info')
 		.custom((value) => {
 			return typeof value === 'object';
 		}),
-	header('content-type')
-		.exists(),
 	handleValidationErrors,
 	(req: Request, res: Response, next: NextFunction) => {
-		const contentTypeHeader = req.headers['content-type'];
-
-		let doJSONPatch: boolean;
-		if (contentTypeHeader === 'application/json-patch+json') {
-			doJSONPatch = true;
-		}
-		else if (contentTypeHeader === 'application/merge-patch+json') {
-			doJSONPatch = false;
-		} else {
-			const err = new Error('Content-type header value is invalid', 400);
-			return next(err);
-		}
-
-		res.locals.doJSONPatch = doJSONPatch;
-
-		return next();
-	},
-	(req: Request, res: Response, next: NextFunction) => {
-		logger.info(`Received request to perform a ${res.locals.doJSONPatch ? 'JSON' : 'merge'} patch on user '${res.locals.user.cert.subject.CN}' (${res.locals.user.id})`);
+		logger.info(`Received request to perform a patch on user '${res.locals.user.cert.subject.CN}' (${res.locals.user.id})`);
 
 		return next();
 	}
 ], (req: Request, res: Response, next: NextFunction) => {
-	const infoObj = req.body.info;
+	const patchObj = req.body;
 
-	return User.getUser(res.locals.user.id)
-		.then((user: IUser) => {
-			let infoDiff, userInfo;
-			userInfo = user.info || {};
-			if (res.locals.doJSONPatch) {
-				infoDiff = infoObj;
-			} else {
-				const emptyObj = {};
-				infoDiff = jsonpatch.compare(userInfo, infoObj);
-			}
+	return User.updateUserInfo(res.locals.user.id, patchObj)
+		.then(() => {
+			logger.info(`Successfully updated info for user '${res.locals.user.cert.subject.CN}' (${res.locals.user.id})`);
 
-			const validationErrors = jsonpatch.validate(infoDiff, userInfo);
-			if (validationErrors) {
-				const err = new Error(`Failed to validate the patch, patch set: ${JSON.stringify(infoDiff)}, user's info object: ${JSON.stringify(userInfo)}`, 500);
-
-				return next(err);
-			}
-
-			const newInfo = jsonpatch.applyPatch(user.info, infoDiff).newDocument;
-			user.info = newInfo;
-
-			return User.
+			return res.status(200).json({});
 		})
-		.catch((err: Error) => {
+		.catch((err) => {
 			return next(err);
 		});
 });

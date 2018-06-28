@@ -1,2 +1,0 @@
-- Change IUserData to be more flexible on the `info` param's format, it should be totally mixed
-- Figure out how to create an `updateUser` function

@@ -33,24 +33,19 @@ userSchema.statics.userIDFromCertificate = function(cert: string): string {
 	return userID;
 };
 
-// userSchema.statics.getInfo = function(userID: )
-
 userSchema.statics.getUser = function(userID: string): Promise<IUser> {
-	if (!userID || userID.length < 1) {
+	if (userID.length < 1) {
 		const err = new ErrorWithStatusCode('Must provide a user ID', 400);
 
 		throw err;
 	}
 
-	return User.findById(userID).exec()
-		.catch((err: Error) => {
-			// This may have been a public cert, generate an ID from it
-			userID = this.userIDFromCertificate(userID);
-			return this.findById(userID);
-		});
+	return User.findById(userID).exec();
 };
 
-userSchema.statics.updateUser = function(id: string, newUser: IUser)
+userSchema.statics.updateUserInfo = function(userID: string, patch: any) {
+	return User.update({ _id: { $eq: userID } }, patch).exec();
+};
 
 userSchema.statics.createUser = function(cert: string): Promise<IUser> {
 	const user = new User({
@@ -65,7 +60,7 @@ userSchema.pre('save', function(next) {
 		return next();
 	}
 
-	const id = User.userIDFromCertificate((<UserModel>this).cert);
+	const id = User.userIDFromCertificate((<IUser>this).cert);
 	this._id = id;
 
 	return next();
