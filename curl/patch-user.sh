@@ -1,1 +1,1 @@
-curl -vvv -XPATCH -H "Content-Type: application/json-patch+json" --data @patch-user.json https://localhost:3002/users/ajp
+curl -vvv -XPATCH -H "Content-Type: application/merge-patch+json" -E ~/tls/ca/intermediate/certs/ajp.intermediate.cert.pem --cacert ~/tls/ca/intermediate/certs/intermediate.root.cert.pem --key ~/tls/ca/intermediate/private/ajp.key.pem --data @patch-user.json https://localhost:3002/users
