@@ -23,8 +23,7 @@ interface IInfoReturn {
 }
 
 /**
- * Retrieves the specified info fields from the
- * specified user.
+ * Retrieves the specified info fields from the authenticated user
  */
 router.get('/info/:namespace', [
 	param('namespace')
@@ -82,9 +81,8 @@ router.get('/info/:namespace', [
 });
 
 /**
- * Adds a user under the specified user ID. If no user ID
- * is provided, it generates one based on the hash of the
- * certificate sent.
+ * Uses the cert given during TLS mutual authentication to create a new user
+ * user in the database.
  * If the given cert has already been added to the store, returns
  * a 409.
  */

@@ -1,0 +1,1 @@
+curl -vvv -XPATCH -H "Content-Type: application/merge-patch+json" -E ~/tls/untrusted-ca/intermediate/certs/alice.intermediate.cert.pem --cacert ~/tls/untrusted-ca/intermediate/certs/intermediate.root.cert.pem --key ~/tls/untrusted-ca/intermediate/private/alice.key.pem --data @patch-user.json https://localhost:3002/users

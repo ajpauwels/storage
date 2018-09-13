@@ -1,0 +1,1 @@
+curl -vvv -XPOST -H "Content-Type: application/json" -E ~/tls/untrusted-ca/intermediate/certs/alice.intermediate.cert.pem --cacert ~/tls/trusted-ca/intermediate/certs/intermediate.root.cert.pem --key ~/tls/untrusted-ca/intermediate/private/alice.key.pem https://localhost:3002/users/
