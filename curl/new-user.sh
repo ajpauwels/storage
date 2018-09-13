@@ -1,1 +1,0 @@
-curl -vvv -XPOST -H "Content-Type: application/json" -E ~/tls/ca/intermediate/certs/ajp.intermediate.cert.pem --cacert ~/tls/ca/intermediate/certs/intermediate.root.cert.pem --key ~/tls/ca/intermediate/private/ajp.key.pem https://localhost:3002/users

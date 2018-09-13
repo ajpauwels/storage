@@ -85,6 +85,31 @@ app.use((req, res, next) => {
 	return next();
 });
 
+// Reject the request if the cert was not signed by our root cert and the request
+// is not a create user request
+app.use((req, res, next) => {
+	const tlsSocket: TLSSocket = req.socket as TLSSocket;
+	const authorized = tlsSocket.authorized;
+	const authErr = tlsSocket.authorizationError;
+
+	if (!authorized) {
+		const method = req.method.toLowerCase();
+		const path = req.originalUrl.toLowerCase();
+
+		logger.debug(`${method}, ${path}`);
+
+		// Is a create user request
+		if (method === 'post' && path === '/users') {
+			return next();
+		} else {
+			const err: Error = new Error('Certificate not signed by this organization', 403);
+			return next(err);
+		}
+	} else {
+		return next();
+	}
+});
+
 // Attach express routes
 app.use('/', indexRoutes);
 app.use('/users', usersRoutes);
@@ -98,7 +123,7 @@ const httpsServer = https.createServer({
 	cert: tlsCert,
 	ca: caCert,
 	requestCert: true,
-	rejectUnauthorized: true,
+	rejectUnauthorized: false,
 	secureProtocol: 'TLSv1_2_method',
 	ecdhCurve: 'auto'
 }, app).listen(port, () => {
