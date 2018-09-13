@@ -1,9 +1,10 @@
 {
 	"info": {
-		"testpatch": "testpatchval"
-	},
-	"aliases": {
-		"blabla": true,
-		"ajp": false
+		"mywebsite": {
+			"firstField": "bloop",
+			"secondField": {
+				"feiuj": "edujhi"
+			}
+		}
 	}
 }

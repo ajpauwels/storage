@@ -7,7 +7,7 @@
 		"start": "npm run serve",
 		"build": "npm run build-ts && npm run tslint",
 		"serve": "ts-node dist/app.js",
-		"watch-ts": "tsc -w",
+		"watch-ts": "tsc --preserveWatchOutput -w",
 		"build-ts": "tsc",
 		"tslint": "tslint -c tslint.json -p tsconfig.json --fix",
 		"debug": "npm run build && npm run watch-debug",

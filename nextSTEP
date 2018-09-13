@@ -1,2 +1,0 @@
-I don't think Mongoose returns a 404 when a document doesn't exist, it just give a null document
-Instead of assigning status codes at error creation, create smart error handler that checks for the error type, http://mongoosejs.com/docs/api.html#mongooseerror_MongooseError
