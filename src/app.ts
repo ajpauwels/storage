@@ -11,7 +11,7 @@ import { TLSSocket } from 'tls';
 import bodyParser from 'body-parser';
 
 // Local libs
-import { default as User } from './models/UserModel';
+import { default as User } from './models/MongooseUserModel';
 import Logger from './libs/logger';
 const logger = Logger.createLogger(__filename);
 

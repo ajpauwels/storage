@@ -4,12 +4,13 @@ import { param, body, query, header, validationResult, Result } from 'express-va
 import { TLSSocket } from 'tls';
 import path from 'path';
 import jsonpatch, { validate } from 'fast-json-patch';
-import { default as User, UserModel } from '../models/UserModel';
+import { default as User } from '../models/MongooseUserModel';
 import { default as IUser } from '../models/IUser';
 
 // Local libs
 import Logger from '../libs/logger';
 import { ErrorWithStatusCode as Error, InputError, handleValidationErrors } from '../libs/error-handler';
+import Util from '../libs/util'
 
 // Create the logger
 const logger = Logger.createLogger(__filename);
@@ -17,10 +18,10 @@ const logger = Logger.createLogger(__filename);
 // Get the express router
 const router = Router();
 
-interface IInfoReturn {
-	found: { [key: string]: any };
-	notFound: string[];
-}
+// interface IInfoReturn {
+// 	found: { [key: string]: any };
+// 	notFound: string[];
+// }
 
 /**
  * Retrieves the specified info fields from the authenticated user
@@ -30,8 +31,7 @@ router.get('/info/:namespace', [
 		.isAlphanumeric()
 		.trim()
 		.escape(),
-	query('names')
-		.isAlphanumeric()
+	query('keys')
 		.trim()
 		.escape(),
 	handleValidationErrors,
@@ -41,10 +41,10 @@ router.get('/info/:namespace', [
 	}
 ], (req: Request, res: Response, next: NextFunction) => {
 	const namespaceStr: string = req.params.namespace;
-	const infoNamesStr: string = req.query.names;
+	const keysStr: string = req.query.keys;
 
 	// Create the array of info names
-	const infoNamesArr: string[] = infoNamesStr.split(',');
+	const keyPaths: string[] = keysStr.split(',');
 
 	return User.getUser(res.locals.user.id)
 		.then((user: IUser) => {
@@ -58,18 +58,21 @@ router.get('/info/:namespace', [
 				throw err;
 			}
 
-			const returnObj: IInfoReturn = {
-				found: {},
-				notFound: []
-			};
+			const returnObj: any = {};
+			for (const key of keyPaths) {
+				const keyPathSplit = key.split(/\.|\[|]\.?/g);
 
-			for (const infoName of infoNamesArr) {
-				const infoValue: string = user.info[infoName];
+				// Pop off the last element if it's empty
+				if (keyPathSplit[keyPathSplit.length - 1].length === 0) {
+					keyPathSplit.pop();
+				}
 
-				if (!infoValue || typeof infoValue !== 'string') {
-					returnObj.notFound.push(infoName);
-				} else {
-					returnObj.found[infoName] = infoValue;
+				try {
+					const result: any = Util.traverseObject(user.info[namespaceStr], keyPathSplit);
+					const topKey = Object.keys(result)[0];
+					returnObj[topKey] = result[topKey];
+				} catch (err) {
+					logger.error(err);
 				}
 			}
 

@@ -1,10 +1,8 @@
-export interface IUserData {
+export default interface IUser {
 	_id: string;
 	cert: string;
 	info: { [key: string]: any };
-}
 
-export default interface IUser extends IUserData {
 	/**
 	 * Retrieves the specified user from the user store.
 	 *
@@ -42,7 +40,7 @@ export default interface IUser extends IUserData {
 	 * @param {String} userID ID of the user to modify the info of
 	 * @param {Mixed} patch RFC6902 JSON patch object
 	 * @returns {Promise<IUser>} Contains the user object exactly as it appears in the database
-	 * @throws 400 Bad Request if the patch is not a valid path
+	 * @throws 400 Bad Request if the patch is not a valid patch
 	 * @throws 404 Not Found if user not found
 	 */
 	updateUserInfo(userID: string, patch: any): Promise<IUser>;
