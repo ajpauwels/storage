@@ -2,23 +2,25 @@
 import { Schema, Document, Model, model } from 'mongoose';
 import { createHash } from 'crypto';
 import * as async from 'async';
-const { ObjectId, String, Mixed } = Schema.Types;
 
 // Local libs
-import { default as IUserOriginal } from './IUser';
+import { default as IUser } from './IUser';
 import { ErrorWithStatusCode } from '../libs/error-handler';
 
-// Merge the user interface with the mongoose Document and Model objects
-type IUser = IUserOriginal & Document;
-export type UserModel = IUser & Model<IUser>;
+// Mongoose data types
+const { ObjectId, String, Mixed } = Schema.Types;
 
-const userSchema = new Schema({
+// Merge the user interface with the mongoose Document and Model objects
+type IUserDocument = IUser & Document;
+type IUserModel = IUserDocument & Model<IUserDocument>;
+
+const UserSchema = new Schema({
 	_id: String,
 	cert: String,
 	info: Mixed
 });
 
-userSchema.statics.userIDFromCertificate = function(cert: string): string {
+UserSchema.statics.userIDFromCertificate = function(cert: string): string {
 	if (cert.length < 1) {
 		const err = new ErrorWithStatusCode('Cert cannot be empty', 400);
 
@@ -33,7 +35,7 @@ userSchema.statics.userIDFromCertificate = function(cert: string): string {
 	return userID;
 };
 
-userSchema.statics.getUser = function(userID: string): Promise<IUser> {
+UserSchema.statics.getUser = function(userID: string): Promise<IUser> {
 	if (userID.length < 1) {
 		const err = new ErrorWithStatusCode('Must provide a user ID', 400);
 
@@ -43,11 +45,11 @@ userSchema.statics.getUser = function(userID: string): Promise<IUser> {
 	return User.findById(userID).exec();
 };
 
-userSchema.statics.updateUserInfo = function(userID: string, patch: any) {
+UserSchema.statics.updateUserInfo = function(userID: string, patch: any): Promise<IUser> {
 	return User.update({ _id: { $eq: userID } }, patch).exec();
 };
 
-userSchema.statics.createUser = function(cert: string): Promise<IUser> {
+UserSchema.statics.createUser = function(cert: string): Promise<IUser> {
 	const user = new User({
 		cert
 	});
@@ -55,16 +57,17 @@ userSchema.statics.createUser = function(cert: string): Promise<IUser> {
 	return user.save();
 };
 
-userSchema.pre('save', function(next) {
+UserSchema.pre('save', (next) => {
+	// const _this = <IUserOriginal & Document>this;
 	if (!this.isModified('cert')) {
 		return next();
 	}
 
-	const id = User.userIDFromCertificate((<IUser>this).cert);
+	const id = this.userIDFromCertificate(this.cert);
 	this._id = id;
 
 	return next();
 });
 
-const User: UserModel = model<IUser, UserModel>('User', userSchema);
+const User: IUserModel = model<IUserDocument, IUserModel>('User', UserSchema);
 export default User;
