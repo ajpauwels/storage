@@ -36,14 +36,20 @@ UserSchema.statics.userIDFromCertificate = function(cert: string): string {
 	return userID;
 };
 
-UserSchema.statics.getUser = function(userID: string): Promise<IUser> {
+UserSchema.statics.getUser = function(userID: string, select?: string[]): Promise<IUser> {
 	if (userID.length < 1) {
 		const err = new ErrorWithStatusCode('Must provide a user ID', 400);
 
 		throw err;
 	}
 
-	return User.findById(userID).exec();
+	const findQuery = User.findById(userID);
+
+	if (select && select.length > 0) {
+		findQuery.select(select.join(' '));
+	}
+
+	return findQuery.exec();
 };
 
 UserSchema.statics.updateUserInfo = function(userID: string, patch: any): Promise<IUser> {

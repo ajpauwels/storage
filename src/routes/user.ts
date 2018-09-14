@@ -9,7 +9,7 @@ import { default as IUser } from '../models/IUser';
 
 // Local libs
 import Logger from '../libs/logger';
-import { ErrorWithStatusCode as Error, InputError, handleValidationErrors } from '../libs/error-handler';
+import { ErrorWithStatusCode, InputError, handleValidationErrors } from '../libs/error-handler';
 import Util from '../libs/util';
 
 // Create the logger
@@ -23,7 +23,6 @@ const router = Router();
  */
 router.get('/info/:namespace', [
 	param('namespace')
-		.isAlphanumeric()
 		.trim()
 		.escape(),
 	query('keys')
@@ -39,39 +38,23 @@ router.get('/info/:namespace', [
 	const keysStr: string = req.query.keys;
 
 	// Create the array of info names
-	const keyPaths: string[] = keysStr.split(',');
+	const keyPaths: string[] = keysStr.split(' ').map((keyPath) => {
+		return `info.${namespaceStr}.${keyPath}`;
+	});
 
-	return User.getUser(res.locals.user.id)
+	return User.getUser(res.locals.user.id, keyPaths)
 		.then((user: IUser) => {
 			if (!user) {
-				const err = new Error(`User '${res.locals.user.cert.subject.CN}' (${res.locals.user.id}) not found`, 404);
+				const err = new ErrorWithStatusCode(`User '${res.locals.user.cert.subject.CN}' (${res.locals.user.id}) not found`, 404);
 				throw err;
 			}
 
 			if (!user.info || !user.info[namespaceStr]) {
-				const err = new Error(`Namespace '${namespaceStr}' not found`, 404);
+				const err = new ErrorWithStatusCode(`Namespace '${namespaceStr}' not found`, 404);
 				throw err;
 			}
 
-			const returnObj: any = {};
-			for (const key of keyPaths) {
-				const keyPathSplit = key.split(/\.|\[|]\.?/g);
-
-				// Pop off the last element if it's empty
-				if (keyPathSplit[keyPathSplit.length - 1].length === 0) {
-					keyPathSplit.pop();
-				}
-
-				try {
-					const result: any = Util.traverseObject(user.info[namespaceStr], keyPathSplit);
-					const topKey = Object.keys(result)[0];
-					returnObj[topKey] = result[topKey];
-				} catch (err) {
-					logger.error(err);
-				}
-			}
-
-			return res.json(returnObj);
+			return res.json(user);
 		})
 		.catch((err: Error) => {
 			return next(err);
