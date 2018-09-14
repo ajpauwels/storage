@@ -44,7 +44,10 @@ UserSchema.statics.getUser = function(userID: string, select?: string[]): Promis
 	}
 
 	const findQuery = User.findById(userID);
-	findQuery.select(select.join(' '));
+
+	if (select && select.length > 0) {
+		findQuery.select(select.join(' '));
+	}
 
 	return findQuery.exec();
 };
