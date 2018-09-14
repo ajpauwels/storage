@@ -6,6 +6,7 @@ import * as async from 'async';
 // Local libs
 import { default as IUser } from './IUser';
 import { ErrorWithStatusCode } from '../libs/error-handler';
+import { MongoError } from 'mongodb';
 
 // Mongoose data types
 const { ObjectId, String, Mixed } = Schema.Types;
@@ -57,17 +58,31 @@ UserSchema.statics.createUser = function(cert: string): Promise<IUser> {
 	return user.save();
 };
 
-UserSchema.pre('save', (next) => {
-	// const _this = <IUserOriginal & Document>this;
+UserSchema.pre('save', function(this: IUserModel, next) {
 	if (!this.isModified('cert')) {
 		return next();
 	}
 
-	const id = this.userIDFromCertificate(this.cert);
+	const id = User.userIDFromCertificate(this.cert);
 	this._id = id;
 
 	return next();
 });
+
+// Error-handling
+const handleE11000 = (err: MongoError, noop: undefined, next: any) => {
+	if (err.name === 'MongoError' && err.code === 11000) {
+		const formattedErr = new ErrorWithStatusCode('User with given ID already exists', 409);
+		return next(formattedErr);
+	} else {
+		return next(err);
+	}
+};
+
+UserSchema.post('save', handleE11000);
+UserSchema.post('update', handleE11000);
+UserSchema.post('findOneAndUpdate', handleE11000);
+UserSchema.post('insertMany', handleE11000);
 
 const User: IUserModel = model<IUserDocument, IUserModel>('User', UserSchema);
 export default User;

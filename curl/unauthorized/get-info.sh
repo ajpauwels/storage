@@ -1,1 +1,1 @@
-curl -vvv -H "Content-Type: application/json" -E ~/tls/untrusted-ca/intermediate/certs/tom.cert.pem --cacert ~/tls/trusted-ca/intermediate/certs/intermediate.root.cert.pem --key ~/tls/untrusted-ca/intermediate/private/tom.key.pem https://localhost:3002/users/info/mywebsite?names=a
+curl -vvv -H "Content-Type: application/json" -E ~/tls/untrusted-ca/intermediate/certs/tom.cert.pem --cacert ~/tls/trusted-ca/intermediate/certs/intermediate.root.cert.pem --key ~/tls/untrusted-ca/intermediate/private/tom.key.pem https://localhost:3002/users/info/mywebsite?names=$1

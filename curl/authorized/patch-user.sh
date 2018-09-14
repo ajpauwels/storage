@@ -1,1 +1,2 @@
-curl -vvv -XPATCH -H "Content-Type: application/merge-patch+json" -E ~/tls/ca/intermediate/certs/ajp.intermediate.cert.pem --cacert ~/tls/ca/intermediate/certs/intermediate.root.cert.pem --key ~/tls/ca/intermediate/private/ajp.key.pem --data @patch-user.json https://localhost:3002/users
+FILEDIR=$(dirname "$0")
+curl -vvv -XPATCH -H "Content-Type: application/json" -E ~/tls/trusted-ca/intermediate/certs/ajp.cert.pem --key ~/tls/trusted-ca/intermediate/private/ajp.key.pem --data @"$FILEDIR"/patch-user.json https://localhost:3002/users

@@ -99,7 +99,8 @@ app.use((req, res, next) => {
 		logger.debug(`${method}, ${path}`);
 
 		// Is a create user request
-		if (method === 'post' && path === '/users') {
+		const matchUsersPath = /^\/user[s]?$/;
+		if (method === 'post' && matchUsersPath.test(path)) {
 			return next();
 		} else {
 			const err: Error = new Error('Certificate not signed by this organization', 403);
@@ -112,7 +113,7 @@ app.use((req, res, next) => {
 
 // Attach express routes
 app.use('/', indexRoutes);
-app.use('/users', usersRoutes);
+app.use('/user[s]?', usersRoutes);
 
 // Attach custom error-handler
 app.use(errorHandler);
