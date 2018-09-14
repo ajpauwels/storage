@@ -3,6 +3,7 @@ import * as path from 'path';
 import { Request, Response, NextFunction } from 'express';
 import { validationResult, Result } from 'express-validator/check';
 import Logger from './logger';
+import * as mongoose from 'mongoose';
 
 const logger = Logger.createLogger(__filename);
 
@@ -51,6 +52,15 @@ export function errorHandler(err: Error, req?: Request, res?: Response, next?: N
 	if (err instanceof ErrorWithStatusCode) {
 		return err.handle(req, res, next);
 	}
+
+	// console.log()
+	// switch (err.name) {
+	// 	case 'MongoError':
+	// 		console.log(err.code);
+	// 		break;
+	// 	default:
+	// 		break;
+	// }
 
 	logger.error(`500 ${err.stack}`);
 

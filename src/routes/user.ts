@@ -10,18 +10,13 @@ import { default as IUser } from '../models/IUser';
 // Local libs
 import Logger from '../libs/logger';
 import { ErrorWithStatusCode as Error, InputError, handleValidationErrors } from '../libs/error-handler';
-import Util from '../libs/util'
+import Util from '../libs/util';
 
 // Create the logger
 const logger = Logger.createLogger(__filename);
 
 // Get the express router
 const router = Router();
-
-// interface IInfoReturn {
-// 	found: { [key: string]: any };
-// 	notFound: string[];
-// }
 
 /**
  * Retrieves the specified info fields from the authenticated user
@@ -98,7 +93,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
 		.then((user: IUser) => {
 			res.json(user);
 		})
-		.catch((err: Error) => {
+		.catch((err) => {
 			return next(err);
 		});
 });
