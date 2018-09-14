@@ -6,13 +6,15 @@ export default interface IUser {
 	/**
 	 * Retrieves the specified user from the user store.
 	 *
-	 * @param {string} userID ID of the user to retrieve info from
+	 * @param {String} userID ID of the user to retrieve info from
+	 * @param {Array} select Array of strings selecting which fields to return,
+	 *                       using dot-notation.
 	 * @returns {Promise<IUser>} Return an IUser type object on success
 	 * @throws 400 Bad Request if user parameter is not a valid string
 	 * @throws 404 Not Found if user not found
 	 * @throws 500 Internal Server Error if user was found but it did not have a valid cert
 	 */
-	getUser(userID: string): Promise<IUser>;
+	getUser(userID: string, select: string[]): Promise<IUser>;
 
 	/**
 	 * Creates the specified user in the user store.
