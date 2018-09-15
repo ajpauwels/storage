@@ -1,1 +1,2 @@
-curl -vvv -H "Content-Type: application/json" -E ~/tls/untrusted-ca/intermediate/certs/tom.cert.pem --cacert ~/tls/trusted-ca/intermediate/certs/intermediate.root.cert.pem --key ~/tls/untrusted-ca/intermediate/private/tom.key.pem https://localhost:3002/users/info/mywebsite?names=$1
+TLS_PATH=../src/tests/tls
+curl -vvv -G -H "Content-Type: application/json" -E $TLS_PATH/unsigned.cert.pem --cacert $TLS_PATH/intermediate.root.cert.pem --key $TLS_PATH/unsigned.key.pem https://localhost:3002/users/info/$1 --data-urlencode "keys=${*:2}"

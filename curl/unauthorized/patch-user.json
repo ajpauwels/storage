@@ -1,10 +1,21 @@
 {
 	"info": {
-		"mywebsite": {
-			"firstField": "alice",
-			"secondField": {
-				"fehuijwfhi": "feuwiofue"
+		"firstNamespace": {
+			"firstKey": "firstVal",
+			"secondKey": {
+				"thirdKey": "thirdVal",
+				"fourthKey": [
+					"fourthVal",
+					0,
+					1,
+					{
+						"fifthKey": "fifthVal"
+					}
+				]
 			}
+		},
+		"secondNamespace": {
+			"sixthKey": 0
 		}
 	}
 }

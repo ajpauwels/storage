@@ -2,6 +2,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
+// Local libs
+import Util from './util';
+
 // Extract relevant functions from Winston
 import { Logger as WinstonLogger, LoggerOptions, createLogger, format, transports } from 'winston';
 const { combine, label, timestamp, colorize, printf } = format;
@@ -10,7 +13,7 @@ export default class Logger {
 	/**
 	 * Creates the logger object.
 	 *
-	 * @param {String} filepath Call this function froma ny file and pass in
+	 * @param {String} filepath Call this function from any file and pass in
 	 *                          `__filename` as the parameter
 	 * @returns {WinstonLogger} Winston logging object
 	 */
@@ -34,7 +37,9 @@ export default class Logger {
 			),
 			level: logLevel,
 			transports: [
-				new transports.Console()
+				new transports.Console({
+					silent: Util.getZone() === 'test'
+				})
 			]
 		});
 	}
