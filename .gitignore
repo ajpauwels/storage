@@ -65,7 +65,7 @@ envs
 .tern-port
 
 # TLS certs
-tls
+/tls
 
 # Compiled TS folder
-dist/
+/dist
