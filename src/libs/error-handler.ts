@@ -53,15 +53,6 @@ export function errorHandler(err: Error, req?: Request, res?: Response, next?: N
 		return err.handle(req, res, next);
 	}
 
-	// console.log()
-	// switch (err.name) {
-	// 	case 'MongoError':
-	// 		console.log(err.code);
-	// 		break;
-	// 	default:
-	// 		break;
-	// }
-
 	logger.error(`500 ${err.stack}`);
 
 	if (res) {

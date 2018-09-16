@@ -38,12 +38,15 @@ router.get('/info/:namespace', [
 	const keysStr: string = req.query.keys;
 
 	// Create the array of info names
-	const keyPaths: string[] = keysStr.split(' ').map((keyPath) => {
-		return `info.${namespaceStr}.${keyPath}`;
-	});
+	let keyPaths: string[];
+	if (typeof (keysStr) === 'string' && keysStr.length > 0) {
+		keyPaths = keysStr.split(' ').map((keyPath) => {
+			return `info.${namespaceStr}.${keyPath}`;
+		});
+	}
 
 	return User.getUser(res.locals.user.id, keyPaths)
-		.then((user) => {
+		.then((user: IUser) => {
 			if (!user) {
 				const err = new ErrorWithStatusCode(`User '${res.locals.user.cert.subject.CN}' (${res.locals.user.id}) not found`, 404);
 				throw err;
@@ -73,8 +76,8 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
 }, (req: Request, res: Response, next: NextFunction) => {
 	// Create the user
 	User.createUser(res.locals.user.b64Cert)
-		.then((user: IUser) => {
-			res.json(user);
+		.then((user) => {
+			return res.json(user);
 		})
 		.catch((err) => {
 			return next(err);
@@ -111,9 +114,13 @@ router.patch('/', [
 	const patchObj = req.body;
 
 	return User.updateUserInfo(res.locals.user.id, patchObj)
-		.then(() => {
-			logger.info(`Successfully updated info for user '${res.locals.user.cert.subject.CN}' (${res.locals.user.id})`);
+		.then((user) => {
+			if (!user) {
+				const err = new ErrorWithStatusCode('User not found', 404);
+				throw err;
+			}
 
+			logger.info(`Successfully updated info for user '${res.locals.user.cert.subject.CN}' (${res.locals.user.id})`);
 			return res.status(200).json({});
 		})
 		.catch((err) => {

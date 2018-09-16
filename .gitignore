@@ -69,3 +69,6 @@ envs
 
 # Compiled TS folder
 /dist
+
+# NYC's coverage folder
+coverage
