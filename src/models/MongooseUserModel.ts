@@ -53,7 +53,7 @@ UserSchema.statics.getUser = function(userID: string, select?: string[]): Promis
 };
 
 UserSchema.statics.updateUserInfo = function(userID: string, patch: any): Promise<IUser> {
-	return User.update({ _id: { $eq: userID } }, patch).exec();
+	return User.findOneAndUpdate({ _id: { $eq: userID } }, patch).exec();
 };
 
 UserSchema.statics.createUser = function(cert: string): Promise<IUser> {

@@ -5,8 +5,8 @@
 	"main": "app.js",
 	"scripts": {
 		"start": "npm run serve",
-		"build": "npm run build-ts && npm run tslint",
-		"serve": "node dist/app.js",
+		"build": "npm run build-ts",
+		"serve": "ts-node dist/app.js",
 		"build-ts": "tsc",
 		"watch-build-ts": "tsc -w --preserveWatchOutput",
 		"serve-ts": "ts-node src/app.ts",
@@ -14,10 +14,29 @@
 		"tslint": "tslint -c tslint.json -p tsconfig.json --force",
 		"tslint-fix": "tslint -c tslint.json -p tsconfig.json --fix",
 		"watch-tslint": "nodemon --exec \"npm run tslint\" -e ts",
-		"debug": "npm run tslint && npm run build-ts && npm run serve-ts",
+		"debug": "npm run tslint && npm run serve-ts",
 		"watch-debug": "concurrently -k -p \"[{name}]\" -n \"Lint,Run\" -c \"yellow.bold,cyan.bold\" \"npm run watch-tslint\" \"npm run watch-ts\"",
-		"test": "ZONE=test ./node_modules/mocha/bin/mocha -r ts-node/register --exit src/tests/**/*.ts",
-		"watch-test": "ZONE=test nodemon -e ts --exec \"./node_modules/mocha/bin/mocha -r ts-node/register src/tests/**/*.ts\""
+		"test+cov": "ZONE=test ./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts",
+		"test": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts",
+		"test-landing": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts --reporter landing",
+		"test-nyan": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts --reporter nyan",
+		"watch-test+cov": "ZONE=test nodemon -e ts --exec \"npm run test+cov\"",
+		"watch-test": "ZONE=test nodemon -e ts --exec \"npm run test\""
+	},
+	"nyc": {
+		"include": [
+			"src/**/*.ts",
+			"src/**/*.tsx"
+		],
+		"extension": [
+			".ts",
+			".tsx"
+		],
+		"require": [
+			"ts-node/register"
+		],
+		"sourceMap": true,
+		"instrument": true
 	},
 	"repository": {
 		"type": "git",
@@ -47,9 +66,12 @@
 		"@types/mocha": "^5.2.5",
 		"@types/mongoose": "^5.0.15",
 		"@types/node-fetch": "^2.1.2",
+		"@types/sinon": "^5.0.2",
 		"chai": "^4.1.2",
 		"mocha": "^5.2.0",
+		"nyc": "^13.0.1",
 		"sinon": "^6.3.3",
+		"source-map-support": "^0.5.9",
 		"ts-node": "^6.1.1",
 		"typescript": "^2.9.2"
 	}
