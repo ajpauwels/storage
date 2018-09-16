@@ -43,7 +43,7 @@ router.get('/info/:namespace', [
 	});
 
 	return User.getUser(res.locals.user.id, keyPaths)
-		.then((user: IUser) => {
+		.then((user) => {
 			if (!user) {
 				const err = new ErrorWithStatusCode(`User '${res.locals.user.cert.subject.CN}' (${res.locals.user.id}) not found`, 404);
 				throw err;
@@ -56,7 +56,7 @@ router.get('/info/:namespace', [
 
 			return res.json(user);
 		})
-		.catch((err: Error) => {
+		.catch((err: ErrorWithStatusCode) => {
 			return next(err);
 		});
 });
