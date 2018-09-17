@@ -18,10 +18,14 @@
 		"watch-debug": "concurrently -k -p \"[{name}]\" -n \"Lint,Run\" -c \"yellow.bold,cyan.bold\" \"npm run watch-tslint\" \"npm run watch-ts\"",
 		"test+cov": "ZONE=test ./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts",
 		"test": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts",
+		"test+cov-some": "ZONE=test ./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit",
+		"test-some": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit",
 		"test-landing": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts --reporter landing",
 		"test-nyan": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts --reporter nyan",
 		"watch-test+cov": "ZONE=test nodemon -e ts --exec \"npm run test+cov\"",
-		"watch-test": "ZONE=test nodemon -e ts --exec \"npm run test\""
+		"watch-test": "ZONE=test nodemon -e ts --exec \"npm run test\"",
+		"watch-test+cov-some": "ZONE=test nodemon -e ts --exec \"npm run test+cov-some\"",
+		"watch-test-some": "ZONE=test nodemon -e ts --exec \"npm run test-some\""
 	},
 	"nyc": {
 		"include": [

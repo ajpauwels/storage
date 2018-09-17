@@ -247,12 +247,12 @@ describe('GET /users/info/:namespace', function() {
 		});
 
 		describe('where the certificate does not have a registered user', function() {
-			const getUserStubResp: undefined = undefined;
+			const getUserStubErr: ErrorWithStatusCode = new ErrorWithStatusCode('User \'userID\' not found', 404);
 			let getUserStub: SinonStub;
 
 			before('set up stubs', function() {
 				getUserStub = stub(User, 'getUser');
-				getUserStub.resolves(getUserStubResp);
+				getUserStub.rejects(getUserStubErr);
 			});
 
 			after('restore stubs', function() {
@@ -263,7 +263,7 @@ describe('GET /users/info/:namespace', function() {
 				const res = await fetch('https://localhost:3002/users/info/badNamespace', fetchOpts);
 				const responseJSON = await res.json();
 
-				expect(responseJSON.message).to.equal(`User 'tester' (${fullUser._id}) not found`);
+				expect(responseJSON.message).to.equal(getUserStubErr.message);
 				expect(res.status).to.equal(404);
 			});
 		});

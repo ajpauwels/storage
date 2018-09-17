@@ -22,8 +22,8 @@ const UserSchema = new Schema({
 });
 
 UserSchema.statics.userIDFromCertificate = function(cert: string): string {
-	if (cert.length < 1) {
-		const err = new ErrorWithStatusCode('Cert cannot be empty', 400);
+	if (typeof (cert) !== 'string' || cert.length < 1) {
+		const err = new ErrorWithStatusCode('Certificate must be a non-empty string', 400);
 
 		throw err;
 	}
@@ -36,27 +36,53 @@ UserSchema.statics.userIDFromCertificate = function(cert: string): string {
 	return userID;
 };
 
-UserSchema.statics.getUser = function(userID: string, select?: string[]): Promise<IUser> {
-	if (userID.length < 1) {
-		const err = new ErrorWithStatusCode('Must provide a user ID', 400);
+UserSchema.statics.getUser = async function(userID: string, select?: string[]): Promise<IUser> {
+	if (typeof (userID) !== 'string' || userID.length < 1) {
+		const err = new ErrorWithStatusCode('UserID must be a non-empty string', 400);
 
 		throw err;
 	}
 
 	const findQuery = User.findById(userID);
-
-	if (select && select.length > 0) {
+	if (Array.isArray(select) && select.length > 0) {
 		findQuery.select(select.join(' '));
 	}
 
-	return findQuery.exec();
+	return findQuery.exec()
+		.then((user) => {
+			if (!user) {
+				const err = new ErrorWithStatusCode(`User '${userID}' not found`, 404);
+				throw err;
+			}
+
+			return user;
+		});
 };
 
-UserSchema.statics.updateUserInfo = function(userID: string, patch: any): Promise<IUser> {
-	return User.findOneAndUpdate({ _id: { $eq: userID } }, patch).exec();
+UserSchema.statics.updateUserInfo = async function(userID: string, patch: any): Promise<IUser> {
+	if (typeof (userID) !== 'string' || userID.length < 1) {
+		const err = new ErrorWithStatusCode('UserID must be a non-empty string', 400);
+
+		throw err;
+	}
+
+	if (!patch || typeof (patch) !== 'object' || Object.keys(patch).length < 1) {
+		const err = new ErrorWithStatusCode('Patch must be a non-empty object', 400);
+		throw err;
+	}
+
+	return User.findOneAndUpdate({ _id: { $eq: userID } }, patch).exec()
+		.then((user) => {
+			if (!user) {
+				const err = new ErrorWithStatusCode(`User '${userID}' not found`, 404);
+				throw err;
+			}
+
+			return user;
+		});
 };
 
-UserSchema.statics.createUser = function(cert: string): Promise<IUser> {
+UserSchema.statics.createUser = async function(cert: string): Promise<IUser> {
 	const user = new User({
 		cert
 	});
