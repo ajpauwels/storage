@@ -6,11 +6,11 @@
 	"scripts": {
 		"start": "npm run serve",
 		"build": "npm run build-ts",
-		"serve": "ts-node dist/app.js",
-		"build-ts": "tsc",
+		"serve": "./node_modules/ts-node/dist/bin.js dist/app.js",
+		"build-ts": "./node_modules/tsc/bin/tsc",
 		"watch-build-ts": "tsc -w --preserveWatchOutput",
-		"serve-ts": "ts-node src/app.ts",
-		"watch-ts": "nodemon --inspect --exec \"npm run serve-ts\" -e ts",
+		"serve-ts": "./node_modules/ts-node/dist/bin.js src/app.ts",
+		"watch-ts": "./node_modules/nodemon/bin/nodemon.js --inspect --exec \"npm run serve-ts\" -e ts",
 		"tslint": "tslint -c tslint.json -p tsconfig.json --force",
 		"tslint-fix": "tslint -c tslint.json -p tsconfig.json --fix",
 		"watch-tslint": "nodemon --exec \"npm run tslint\" -e ts",
@@ -60,6 +60,7 @@
 		"fast-json-patch": "^2.0.6",
 		"mongoose": "^5.1.4",
 		"node-fetch": "^2.2.0",
+		"ts-node": "^6.2.0",
 		"winston": "^3.0.0-rc6"
 	},
 	"devDependencies": {
@@ -73,10 +74,11 @@
 		"@types/sinon": "^5.0.2",
 		"chai": "^4.1.2",
 		"mocha": "^5.2.0",
+		"nodemon": "^1.18.4",
 		"nyc": "^13.0.1",
 		"sinon": "^6.3.3",
 		"source-map-support": "^0.5.9",
-		"ts-node": "^6.1.1",
+		"tsc": "^1.20150623.0",
 		"typescript": "^2.9.2"
 	}
 }
