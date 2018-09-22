@@ -31,17 +31,6 @@ if (!dbURL) {
 	process.exit(1);
 }
 
-// Setup our DB connection
-mongoose.Promise = bluebird;
-mongoose.connect(dbURL)
-	.then(() => {
-		logger.info('Successfully connected to MongoDB');
-	})
-	.catch((err) => {
-		err.statusCode = 500;
-		return errorHandler(err);
-	});
-
 // Discover port to listen on
 const port = process.env['PORT'] || 3000;
 
@@ -134,6 +123,21 @@ start(tlsKey, tlsCert, caCert);
  * @returns {void}
  */
 export function start(tlsKey: Buffer, tlsCert: Buffer, caChain: Buffer) {
+	const zone: string = Util.getZone();
+
+	// Setup our DB connection
+	if (zone !== 'test') {
+		mongoose.Promise = bluebird;
+		mongoose.connect(dbURL)
+			.then(() => {
+				logger.info('Successfully connected to MongoDB');
+			})
+			.catch((err) => {
+				err.statusCode = 500;
+				return errorHandler(err);
+			});
+	}
+
 	if (httpsServer) stop();
 
 	httpsServer = https.createServer({
