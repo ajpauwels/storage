@@ -94,16 +94,19 @@ app.use('/user[s]?', usersRoutes);
 // Attach custom error-handler
 app.use(errorHandler);
 
-// Get the SSL keys
-const tlsKey = fs.readFileSync('./tls/storage.key.pem');
-const tlsCert = fs.readFileSync('./tls/storage.cert.pem');
-const caCert = fs.readFileSync('./tls/intermediate.root.cert.pem');
-
 // Declare the server
 let httpsServer: https.Server;
+const zone: string = Util.getZone();
 
-// Start the server with the given TLS certs
-start(tlsKey, tlsCert, caCert);
+if (zone !== 'test') {
+	// Get the SSL keys
+	const tlsKey = fs.readFileSync('./tls/storage.key.pem');
+	const tlsCert = fs.readFileSync('./tls/storage.cert.pem');
+	const caCert = fs.readFileSync('./tls/intermediate.root.cert.pem');
+
+	// Start the server with the given TLS certs
+	start(tlsKey, tlsCert, caCert);
+}
 
 /**
  * Starts the server listening on the env-specified port
@@ -115,8 +118,6 @@ start(tlsKey, tlsCert, caCert);
  * @returns {void}
  */
 export function start(tlsKey: Buffer, tlsCert: Buffer, caChain: Buffer) {
-	const zone: string = Util.getZone();
-
 	// Setup our DB connection
 	if (zone !== 'test') {
 		// Check if we have our DB_URL
@@ -143,7 +144,7 @@ export function start(tlsKey: Buffer, tlsCert: Buffer, caChain: Buffer) {
 	httpsServer = https.createServer({
 		key: tlsKey,
 		cert: tlsCert,
-		ca: caCert,
+		ca: caChain,
 		requestCert: true,
 		rejectUnauthorized: false,
 		secureProtocol: 'TLSv1_2_method',
