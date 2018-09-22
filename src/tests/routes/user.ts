@@ -10,6 +10,7 @@ import { SinonStub, stub } from 'sinon';
 // Local libs
 import User from '../../models/MongooseUserModel';
 import { ErrorWithStatusCode } from '../../libs/error-handler';
+import Util from '../../libs/util';
 
 // Load the TLS certs and keys for mutual TLS
 const caCert = fs.readFileSync('./src/tests/tls/intermediate.root.cert.pem');
@@ -17,6 +18,8 @@ const serverKey = fs.readFileSync('./src/tests/tls/server.key.pem');
 const serverCert = fs.readFileSync('./src/tests/tls/server.cert.pem');
 const testerKey = fs.readFileSync('./src/tests/tls/tester.key.pem');
 const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem');
+
+const port = Util.getPort();
 
 // Start the express app
 startServer(serverKey, serverCert, caCert);

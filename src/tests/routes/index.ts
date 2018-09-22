@@ -1,6 +1,7 @@
 // Third-party libs
 import chai from 'chai';
 import { start as startServer, stop as stopServer } from '../../app';
+import Util from '../../libs/util';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
@@ -15,6 +16,9 @@ const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem');
 const unsignedKey = fs.readFileSync('./src/tests/tls/unsigned.key.pem');
 const unsignedCert = fs.readFileSync('./src/tests/tls/unsigned.cert.pem');
 
+// Load the port number to use
+const port = Util.getPort();
+
 // Start the express app
 startServer(serverKey, serverCert, caCert);
 
@@ -24,7 +28,7 @@ const { expect } = chai;
 describe('GET /', function() {
 	describe('without any mutual TLS certificate', function() {
 		it('should return a 401 and indicate the certificate could not be retrieved', async function() {
-			const res = await fetch('https://localhost:3002/', {
+			const res = await fetch(`https://localhost:${port}/`, {
 				agent: new https.Agent({
 					ca: caCert
 				})
@@ -38,7 +42,7 @@ describe('GET /', function() {
 
 	describe('with a mutual TLS certificate not signed by the server\'s CA', function() {
 		it('should return a 403 and indicate the certificate was not signed', async function() {
-			const res = await fetch('https://localhost:3002/', {
+			const res = await fetch(`https://localhost:${port}/`, {
 				agent: new https.Agent({
 					ca: caCert,
 					key: unsignedKey,
@@ -54,7 +58,7 @@ describe('GET /', function() {
 
 	describe('with a mutual TLS certificate signed by the server\'s CA', function() {
 		it('should return a 200 with a text body saying "Up and running"', async function() {
-			const res = await fetch('https://localhost:3002/', {
+			const res = await fetch(`https://localhost:${port}/`, {
 				agent: new https.Agent({
 					ca: caCert,
 					key: testerKey,

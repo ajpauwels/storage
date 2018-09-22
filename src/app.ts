@@ -23,9 +23,6 @@ import { errorHandler, ErrorWithStatusCode as Error, ErrorWithStatusCode } from 
 import indexRoutes from './routes/index';
 import usersRoutes from './routes/user';
 
-// Discover port to listen on
-const port = process.env['PORT'] || 3000;
-
 // Create the express app
 const app = express();
 
@@ -138,6 +135,9 @@ export function start(tlsKey: Buffer, tlsCert: Buffer, caChain: Buffer) {
 				return errorHandler(err);
 			});
 	}
+
+	// Discover port to listen on
+	const port = process.env['PORT'] || 3000;
 
 	if (httpsServer) stop();
 

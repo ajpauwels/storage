@@ -9,4 +9,11 @@ export default class Util {
 
 		return zone;
 	}
+
+	static getPort(): number {
+		const parsedEnv = parseInt(process.env['PORT']);
+
+		if (isNaN(parsedEnv)) return 3000;
+		else return parsedEnv;
+	}
 }
