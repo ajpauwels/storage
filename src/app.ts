@@ -23,28 +23,6 @@ import { errorHandler, ErrorWithStatusCode as Error, ErrorWithStatusCode } from 
 import indexRoutes from './routes/index';
 import usersRoutes from './routes/user';
 
-// Check if we have our DB_URL
-const dbURL = process.env['MONGODB_URL'];
-if (!dbURL) {
-	const err = new Error('Requires a MONGODB_URL environment variable set to run', 400);
-	errorHandler(err);
-	process.exit(1);
-}
-
-// Setup our DB connection
-mongoose.Promise = bluebird;
-mongoose.connect(dbURL)
-	.then(() => {
-		logger.info('Successfully connected to MongoDB');
-	})
-	.catch((err) => {
-		err.statusCode = 500;
-		return errorHandler(err);
-	});
-
-// Discover port to listen on
-const port = process.env['PORT'] || 3000;
-
 // Create the express app
 const app = express();
 
@@ -113,16 +91,19 @@ app.use('/user[s]?', usersRoutes);
 // Attach custom error-handler
 app.use(errorHandler);
 
-// Get the SSL keys
-const tlsKey = fs.readFileSync('./tls/storage.key.pem');
-const tlsCert = fs.readFileSync('./tls/storage.cert.pem');
-const caCert = fs.readFileSync('./tls/intermediate.root.cert.pem');
-
 // Declare the server
 let httpsServer: https.Server;
+const zone: string = Util.getZone();
 
-// Start the server with the given TLS certs
-start(tlsKey, tlsCert, caCert);
+if (zone !== 'test') {
+	// Get the SSL keys
+	const tlsKey = fs.readFileSync('./tls/storage.key.pem');
+	const tlsCert = fs.readFileSync('./tls/storage.cert.pem');
+	const caCert = fs.readFileSync('./tls/intermediate.root.cert.pem');
+
+	// Start the server with the given TLS certs
+	start(tlsKey, tlsCert, caCert);
+}
 
 /**
  * Starts the server listening on the env-specified port
@@ -134,12 +115,36 @@ start(tlsKey, tlsCert, caCert);
  * @returns {void}
  */
 export function start(tlsKey: Buffer, tlsCert: Buffer, caChain: Buffer) {
+	// Setup our DB connection
+	if (zone !== 'test') {
+		// Check if we have our DB_URL
+		const dbURL = process.env['MONGODB_URL'];
+		if (!dbURL) {
+			const err = new Error('Requires a MONGODB_URL environment variable set to run', 400);
+			errorHandler(err);
+			process.exit(1);
+		}
+
+		mongoose.Promise = bluebird;
+		mongoose.connect(dbURL)
+			.then(() => {
+				logger.info('Successfully connected to MongoDB');
+			})
+			.catch((err) => {
+				err.statusCode = 500;
+				return errorHandler(err);
+			});
+	}
+
+	// Discover port to listen on
+	const port = process.env['PORT'] || 3000;
+
 	if (httpsServer) stop();
 
 	httpsServer = https.createServer({
 		key: tlsKey,
 		cert: tlsCert,
-		ca: caCert,
+		ca: caChain,
 		requestCert: true,
 		rejectUnauthorized: false,
 		secureProtocol: 'TLSv1_2_method',

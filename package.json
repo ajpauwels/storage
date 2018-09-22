@@ -6,22 +6,26 @@
 	"scripts": {
 		"start": "npm run serve",
 		"build": "npm run build-ts",
-		"serve": "ts-node dist/app.js",
-		"build-ts": "tsc",
-		"watch-build-ts": "tsc -w --preserveWatchOutput",
-		"serve-ts": "ts-node src/app.ts",
-		"watch-ts": "nodemon --inspect --exec \"npm run serve-ts\" -e ts",
-		"tslint": "tslint -c tslint.json -p tsconfig.json --force",
-		"tslint-fix": "tslint -c tslint.json -p tsconfig.json --fix",
+		"serve": "./node_modules/ts-node/dist/bin.js dist/app.js",
+		"build-ts": "./node_modules/typescript/bin/tsc",
+		"watch-build-ts": "./node_modules/typescript/bin/tsc -w --preserveWatchOutput",
+		"serve-ts": "./node_modules/ts-node/dist/bin.js src/app.ts",
+		"watch-ts": "./node_modules/nodemon/bin/nodemon.js --inspect --exec \"npm run serve-ts\" -e ts",
+		"tslint": "./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json --force",
+		"tslint-fix": "./node_modules/tslint/bin/tslint -c tslint.json -p tsconfig.json --fix",
 		"watch-tslint": "nodemon --exec \"npm run tslint\" -e ts",
 		"debug": "npm run tslint && npm run serve-ts",
-		"watch-debug": "concurrently -k -p \"[{name}]\" -n \"Lint,Run\" -c \"yellow.bold,cyan.bold\" \"npm run watch-tslint\" \"npm run watch-ts\"",
+		"watch-debug": "./node_modules/concurrently/bin/concurrently.js -k -p \"[{name}]\" -n \"Lint,Run\" -c \"yellow.bold,cyan.bold\" \"npm run watch-tslint\" \"npm run watch-ts\"",
 		"test+cov": "ZONE=test ./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts",
 		"test": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts",
+		"test+cov-some": "ZONE=test ./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit",
+		"test-some": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit",
 		"test-landing": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts --reporter landing",
 		"test-nyan": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts --reporter nyan",
 		"watch-test+cov": "ZONE=test nodemon -e ts --exec \"npm run test+cov\"",
-		"watch-test": "ZONE=test nodemon -e ts --exec \"npm run test\""
+		"watch-test": "ZONE=test nodemon -e ts --exec \"npm run test\"",
+		"watch-test+cov-some": "ZONE=test nodemon -e ts --exec \"npm run test+cov-some\"",
+		"watch-test-some": "ZONE=test nodemon -e ts --exec \"npm run test-some\""
 	},
 	"nyc": {
 		"include": [
@@ -56,6 +60,7 @@
 		"fast-json-patch": "^2.0.6",
 		"mongoose": "^5.1.4",
 		"node-fetch": "^2.2.0",
+		"ts-node": "^6.2.0",
 		"winston": "^3.0.0-rc6"
 	},
 	"devDependencies": {
@@ -68,11 +73,13 @@
 		"@types/node-fetch": "^2.1.2",
 		"@types/sinon": "^5.0.2",
 		"chai": "^4.1.2",
+		"concurrently": "^4.0.1",
 		"mocha": "^5.2.0",
+		"nodemon": "^1.18.4",
 		"nyc": "^13.0.1",
 		"sinon": "^6.3.3",
 		"source-map-support": "^0.5.9",
-		"ts-node": "^6.1.1",
+		"tslint": "^5.11.0",
 		"typescript": "^2.9.2"
 	}
 }

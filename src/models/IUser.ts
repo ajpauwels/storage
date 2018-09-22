@@ -12,9 +12,9 @@ export default interface IUser {
 	 * @returns {Promise<IUser>} Return an IUser type object on success
 	 * @throws 400 Bad Request if user parameter is not a valid string
 	 * @throws 404 Not Found if user not found
-	 * @throws 500 Internal Server Error if user was found but it did not have a valid cert
+	 * @throws 500 Internal Server Error for all other problems
 	 */
-	getUser(userID: string, select: string[]): Promise<IUser>;
+	getUser(userID: string, select?: string[]): Promise<IUser>;
 
 	/**
 	 * Creates the specified user in the user store.

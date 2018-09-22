@@ -47,11 +47,6 @@ router.get('/info/:namespace', [
 
 	return User.getUser(res.locals.user.id, keyPaths)
 		.then((user: IUser) => {
-			if (!user) {
-				const err = new ErrorWithStatusCode(`User '${res.locals.user.cert.subject.CN}' (${res.locals.user.id}) not found`, 404);
-				throw err;
-			}
-
 			if (!user.info || !user.info[namespaceStr]) {
 				const err = new ErrorWithStatusCode(`Namespace '${namespaceStr}' not found`, 404);
 				throw err;
