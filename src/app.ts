@@ -23,14 +23,6 @@ import { errorHandler, ErrorWithStatusCode as Error, ErrorWithStatusCode } from 
 import indexRoutes from './routes/index';
 import usersRoutes from './routes/user';
 
-// Check if we have our DB_URL
-const dbURL = process.env['MONGODB_URL'];
-if (!dbURL) {
-	const err = new Error('Requires a MONGODB_URL environment variable set to run', 400);
-	errorHandler(err);
-	process.exit(1);
-}
-
 // Discover port to listen on
 const port = process.env['PORT'] || 3000;
 
@@ -127,6 +119,14 @@ export function start(tlsKey: Buffer, tlsCert: Buffer, caChain: Buffer) {
 
 	// Setup our DB connection
 	if (zone !== 'test') {
+		// Check if we have our DB_URL
+		const dbURL = process.env['MONGODB_URL'];
+		if (!dbURL) {
+			const err = new Error('Requires a MONGODB_URL environment variable set to run', 400);
+			errorHandler(err);
+			process.exit(1);
+		}
+
 		mongoose.Promise = bluebird;
 		mongoose.connect(dbURL)
 			.then(() => {
