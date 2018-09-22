@@ -120,7 +120,7 @@ describe('GET /users/info/:namespace', function() {
 					});
 
 					it('should return a 200 with the user object containing the one provided keypath', async function() {
-						const res = await fetch('https://localhost:3002/users/info/firstNamespace?keys=firstKey', fetchOpts);
+						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace?keys=firstKey`, fetchOpts);
 						const responseJSON = await res.json();
 
 						expect(responseJSON).to.deep.equal(getUserStubResp);
@@ -152,7 +152,7 @@ describe('GET /users/info/:namespace', function() {
 					});
 
 					it('should return a 200 with the user object containing all of the provided keypaths', async function() {
-						const res = await fetch('https://localhost:3002/users/info/firstNamespace?keys=firstKey secondKey thirdKey', fetchOpts);
+						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace?keys=firstKey secondKey thirdKey`, fetchOpts);
 						const responseJSON = await res.json();
 
 						expect(responseJSON).to.deep.equal(getUserStubResp);
@@ -184,7 +184,7 @@ describe('GET /users/info/:namespace', function() {
 					});
 
 					it('should return a 200 with the user object containing only the portion of the info requested', async function() {
-						const res = await fetch('https://localhost:3002/users/info/firstNamespace?keys=firstKey secondKey thirdKey', fetchOpts);
+						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace?keys=firstKey secondKey thirdKey`, fetchOpts);
 						const responseJSON = await res.json();
 
 						expect(responseJSON).to.deep.equal(getUserStubResp);
@@ -214,7 +214,7 @@ describe('GET /users/info/:namespace', function() {
 					});
 
 					it('should return a 200 with the user object containing the keypath that exists and no reference to the one which doesn\'t', async function() {
-						const res = await fetch('https://localhost:3002/users/info/firstNamespace?keys=firstKey bloop', fetchOpts);
+						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace?keys=firstKey bloop`, fetchOpts);
 						const responseJSON = await res.json();
 
 						expect(responseJSON).to.deep.equal(getUserStubResp);
