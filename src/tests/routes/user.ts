@@ -90,7 +90,7 @@ describe('GET /users/info/:namespace', function() {
 					});
 
 					it('should return a 200 with the full user', async function() {
-						const res = await fetch('https://localhost:3002/users/info/firstNamespace', fetchOpts);
+						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace`, fetchOpts);
 						const responseJSON = await res.json();
 
 						expect(responseJSON).to.deep.equal(getUserStubResp);
@@ -240,7 +240,7 @@ describe('GET /users/info/:namespace', function() {
 				});
 
 				it('should return a 404 error and indicate the namespace could not be found', async function() {
-					const res = await fetch('https://localhost:3002/users/info/badNamespace', fetchOpts);
+					const res = await fetch(`https://localhost:${port}/users/info/badNamespace`, fetchOpts);
 					const responseJSON = await res.json();
 
 					expect(responseJSON.message).to.equal('Namespace \'badNamespace\' not found');
@@ -263,7 +263,7 @@ describe('GET /users/info/:namespace', function() {
 			});
 
 			it('should return a 404 error and indicate the user could not be found', async function() {
-				const res = await fetch('https://localhost:3002/users/info/badNamespace', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users/info/badNamespace`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON.message).to.equal(getUserStubErr.message);
@@ -285,7 +285,7 @@ describe('GET /users/info/:namespace', function() {
 			});
 
 			it('should return a 500 error with an error message', async function() {
-				const res = await fetch('https://localhost:3002/users/info/firstNamespace', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users/info/firstNamespace`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON.message).to.equal(getUserStubError.message);
@@ -328,7 +328,7 @@ describe('POST /users', function() {
 			});
 
 			it('should return a 500 response and an error message', async function() {
-				const res = await fetch('https://localhost:3002/users', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON.message).to.equal(createUserStubErr.message);
@@ -353,7 +353,7 @@ describe('POST /users', function() {
 			});
 
 			it('should return a 200 response and the created user object', async function() {
-				const res = await fetch('https://localhost:3002/users', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON).to.deep.equal(createUserStubResp);
@@ -374,7 +374,7 @@ describe('POST /users', function() {
 			});
 
 			it('should return a 409 response and indicate the user already exists', async function() {
-				const res = await fetch('https://localhost:3002/users', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON.message).to.equal(createUserStubErr.message);
@@ -418,7 +418,7 @@ describe('PATCH /users', function() {
 			});
 
 			it('should return a 400 response and indicate a field is missing', async function() {
-				const res = await fetch('https://localhost:3002/users', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON.message).to.equal('Invalid input, [{\"location\":\"body\",\"param\":\"info\",\"msg\":\"Invalid value\"}]');
@@ -440,7 +440,7 @@ describe('PATCH /users', function() {
 			});
 
 			it('should return a 404 response and indicate the user does not exist', async function() {
-				const res = await fetch('https://localhost:3002/users', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON.message).to.equal('User not found');
@@ -462,7 +462,7 @@ describe('PATCH /users', function() {
 			});
 
 			it('should return a 200 response and empty JSON body', async function() {
-				const res = await fetch('https://localhost:3002/users', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON).to.deep.equal({});
@@ -484,7 +484,7 @@ describe('PATCH /users', function() {
 			});
 
 			it('should return a 500 response and an error message', async function() {
-				const res = await fetch('https://localhost:3002/users', fetchOpts);
+				const res = await fetch(`https://localhost:${port}/users`, fetchOpts);
 				const responseJSON = await res.json();
 
 				expect(responseJSON.message).to.equal(updateUserInfoStubErr.message);
