@@ -25,7 +25,7 @@ describe('#errorHandler', function() {
 	afterEach('reset spy histories', function() {
 		nextSpy.resetHistory();
 	});
-	
+
 	describe('when the err is an instance of ErrorWithStatusCode', function() {
 		it('should call the handle function on the error with req, res, next', function() {
 			const err = new ErrorWithStatusCode('not found', 404);
@@ -33,7 +33,7 @@ describe('#errorHandler', function() {
 			err.handle = handleSpy;
 
 			errorHandler(err, mockReq, mockRes, nextSpy);
-			
+
 			expect(handleSpy.calledOnce).to.be.true;
 			expect(handleSpy.calledOnceWith(mockReq, mockRes, nextSpy)).to.be.true;
 		});
@@ -41,7 +41,7 @@ describe('#errorHandler', function() {
 
 	describe('when the err is an unrecognized error', function() {
 		let jsonStub: SinonStub;
-		
+
 		before('create res.status', function() {
 			jsonStub = stub();
 

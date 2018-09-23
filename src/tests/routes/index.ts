@@ -8,13 +8,13 @@ import path from 'path';
 import https from 'https';
 
 // Load the TLS certs and keys for mutual TLS
-const caCert = fs.readFileSync('./src/tests/tls/intermediate.root.cert.pem');
-const serverKey = fs.readFileSync('./src/tests/tls/server.key.pem');
-const serverCert = fs.readFileSync('./src/tests/tls/server.cert.pem');
-const testerKey = fs.readFileSync('./src/tests/tls/tester.key.pem');
-const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem');
-const unsignedKey = fs.readFileSync('./src/tests/tls/unsigned.key.pem');
-const unsignedCert = fs.readFileSync('./src/tests/tls/unsigned.cert.pem');
+const caCert = fs.readFileSync('./src/tests/tls/intermediate.root.cert.pem').toString();
+const serverKey = fs.readFileSync('./src/tests/tls/server.key.pem').toString();
+const serverCert = fs.readFileSync('./src/tests/tls/server.cert.pem').toString();
+const testerKey = fs.readFileSync('./src/tests/tls/tester.key.pem').toString();
+const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem').toString();
+const unsignedKey = fs.readFileSync('./src/tests/tls/unsigned.key.pem').toString();
+const unsignedCert = fs.readFileSync('./src/tests/tls/unsigned.cert.pem').toString();
 
 // Load the port number to use
 const port = Util.getPort();
