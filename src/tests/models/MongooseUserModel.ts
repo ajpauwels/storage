@@ -11,7 +11,7 @@ import { userInfo } from 'os';
 import { MongoError } from 'mongodb';
 import { race } from 'bluebird';
 
-const { assert, expect } = chai;
+const { expect } = chai;
 
 const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem');
 

@@ -9,7 +9,7 @@ import { default as IUser } from '../models/IUser';
 
 // Local libs
 import Logger from '../libs/logger';
-import { ErrorWithStatusCode, InputError, handleValidationErrors } from '../libs/error-handler';
+import { ErrorWithStatusCode, handleValidationErrors } from '../libs/error-handler';
 import Util from '../libs/util';
 
 // Create the logger

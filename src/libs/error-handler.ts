@@ -12,7 +12,7 @@ export class ErrorWithStatusCode extends Error {
 	readonly statusCode: number;
 	extra: any;
 
-	constructor(msg: string, statusCode: number = 500) {
+	constructor(msg?: string, statusCode: number = 500) {
 		super(msg);
 		this.statusCode = statusCode;
 	}
@@ -31,18 +31,12 @@ export class ErrorWithStatusCode extends Error {
 	}
 }
 
-export class InputError extends ErrorWithStatusCode {
-	constructor(errs: Result) {
-		super(`Invalid input, ${JSON.stringify(errs.array())}`, 400);
-		this.extra = errs.array();
-	}
-}
-
-export function handleValidationErrors(req?: Request, res?: Response, next?: NextFunction) {
+export function handleValidationErrors(req?: any, res?: Response, next?: NextFunction) {
 	const validationResultObj: Result = validationResult(req);
 
 	if (!validationResultObj.isEmpty()) {
-		return next(new InputError(validationResultObj));
+		const err = new ErrorWithStatusCode(`Invalid input, ${JSON.stringify(validationResultObj.array())}`, 400);
+		return next(err);
 	} else {
 		return next();
 	}
