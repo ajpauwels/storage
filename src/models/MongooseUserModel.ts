@@ -62,7 +62,6 @@ UserSchema.statics.getUser = async function(userID: string, select?: string[]): 
 UserSchema.statics.updateUserInfo = async function(userID: string, patch: any): Promise<IUser> {
 	if (typeof (userID) !== 'string' || userID.length < 1) {
 		const err = new ErrorWithStatusCode('UserID must be a non-empty string', 400);
-
 		throw err;
 	}
 
@@ -83,6 +82,11 @@ UserSchema.statics.updateUserInfo = async function(userID: string, patch: any): 
 };
 
 UserSchema.statics.createUser = async function(cert: string): Promise<IUser> {
+	if (cert.length === 0) {
+		const err = new ErrorWithStatusCode('Public certificate must be a non-empty string', 400);
+		throw err;
+	}
+
 	const user = new User({
 		cert
 	});
@@ -90,31 +94,39 @@ UserSchema.statics.createUser = async function(cert: string): Promise<IUser> {
 	return user.save();
 };
 
-UserSchema.pre('save', function(this: IUserModel, next) {
-	if (!this.isModified('cert')) {
+// Pre-hooks
+export const PreHooks = {
+	preSave: function(this: IUserModel, next: Function) {
+		if (!this.isModified('cert')) {
+			return next();
+		}
+
+		const id = User.userIDFromCertificate(this.cert);
+		this._id = id;
+
 		return next();
-	}
-
-	const id = User.userIDFromCertificate(this.cert);
-	this._id = id;
-
-	return next();
-});
-
-// Error-handling
-const handleE11000 = (err: MongoError, noop: undefined, next: any) => {
-	if (err.name === 'MongoError' && err.code === 11000) {
-		const formattedErr = new ErrorWithStatusCode('User with given ID already exists', 409);
-		return next(formattedErr);
-	} else {
-		return next(err);
 	}
 };
 
-UserSchema.post('save', handleE11000);
-UserSchema.post('update', handleE11000);
-UserSchema.post('findOneAndUpdate', handleE11000);
-UserSchema.post('insertMany', handleE11000);
+UserSchema.pre('save', PreHooks.preSave);
+
+// Error-handling
+export const ErrorHandlers = {
+	handleE11000: (err: MongoError, noop: undefined, next: any) => {
+		if (!err) return next();
+		if (err.name === 'MongoError' && err.code === 11000) {
+			const formattedErr = new ErrorWithStatusCode('User with given ID already exists', 409);
+			return next(formattedErr);
+		} else {
+			return next(err);
+		}
+	}
+};
+
+UserSchema.post('save', ErrorHandlers.handleE11000);
+UserSchema.post('update', ErrorHandlers.handleE11000);
+UserSchema.post('findOneAndUpdate', ErrorHandlers.handleE11000);
+UserSchema.post('insertMany', ErrorHandlers.handleE11000);
 
 const User: IUserModel = model<IUserDocument, IUserModel>('User', UserSchema);
 export default User;
