@@ -1,14 +1,17 @@
 // Third-party libs
 import chai from 'chai';
-import User from '../../models/MongooseUserModel';
+import { default as User, ErrorHandlers, PreHooks } from '../../models/MongooseUserModel';
 import { SinonSpy, SinonStub, spy, stub } from 'sinon';
 import { ErrorWithStatusCode } from '../../libs/error-handler';
 import { Certificate } from 'crypto';
 import fs from 'fs';
 import { createHash } from 'crypto';
 import { Errback } from 'express';
+import { userInfo } from 'os';
+import { MongoError } from 'mongodb';
+import { race } from 'bluebird';
 
-const { expect } = chai;
+const { assert, expect } = chai;
 
 const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem');
 
@@ -40,6 +43,96 @@ const fullUser = {
 		}
 	}
 };
+
+describe('PreHooks', function() {
+	let preSaveSpy: SinonSpy;
+
+	before('create spies', function() {
+		preSaveSpy = spy(PreHooks, 'preSave');
+	});
+
+	after('restore spies', function() {
+		preSaveSpy.restore();
+	});
+
+	describe('#preSave', function() {
+		it('should add the _id param to the context if the cert was modified', function() {
+			const contextObj: any = {
+				isModified: function(cert: string) { return true; },
+				cert: fullUser.cert
+			};
+
+			PreHooks.preSave.call(contextObj, (err: ErrorWithStatusCode) => {
+				const id = User.userIDFromCertificate(contextObj.cert);
+				expect(err).to.be.undefined;
+				expect(contextObj._id).to.not.be.undefined;
+				expect(contextObj._id).to.be.equal(id);
+			});
+		});
+
+		it('should not modify the context at all if the cert was not modified', function() {
+			const contextObj: any = {
+				isModified: function(cert: string) { return false; },
+				cert: fullUser.cert
+			};
+
+			PreHooks.preSave.call(contextObj, (err: ErrorWithStatusCode) => {
+				const id = User.userIDFromCertificate(contextObj.cert);
+				expect(err).to.be.undefined;
+				expect(contextObj._id).to.be.undefined;
+			});
+		});
+	});
+});
+
+describe('ErrorHandlers', function() {
+	let handleE11000Spy: SinonSpy;
+
+	before('create spies', function() {
+		handleE11000Spy = spy(ErrorHandlers, 'handleE11000');
+	});
+
+	after('restore spies', function() {
+		handleE11000Spy.restore();
+	});
+
+	describe('#handleE11000', function() {
+		it('should return a 409 error if error is an E11000', function(done) {
+			const mongoErr = new MongoError('Mongo error E11000');
+			mongoErr.name = 'MongoError';
+			mongoErr.code = 11000;
+
+			ErrorHandlers.handleE11000(mongoErr, undefined, (err: ErrorWithStatusCode) => {
+				expect(err).to.not.be.undefined;
+				expect(err.message).to.equal('User with given ID already exists');
+				expect(err.statusCode).to.equal(409);
+
+				return done();
+			});
+		});
+
+		it('should return the same error as the one given if the error is not an E11000', function(done) {
+			const mongoErr = new MongoError('Mongo error not-E11000');
+			mongoErr.name = 'MongoError';
+			mongoErr.code = 11001;
+
+			ErrorHandlers.handleE11000(mongoErr, undefined, (err: ErrorWithStatusCode) => {
+				expect(err).to.not.be.undefined;
+				expect(err).to.equal(mongoErr);
+
+				return done();
+			});
+		});
+
+		it('should return no error at all if none is given', function(done) {
+			ErrorHandlers.handleE11000(undefined, undefined, (err: ErrorWithStatusCode) => {
+				expect(err).to.be.undefined;
+
+				return done();
+			});
+		});
+	});
+});
 
 describe('MongooseUserModel', function() {
 	describe('#userIDFromCertificate', function() {
@@ -230,7 +323,7 @@ describe('MongooseUserModel', function() {
 	});
 
 	describe('#updateUserInfo', function() {
-		let updateUserInfoSpy: SinonSpy, findOneAndUpdateStub: any;
+		let updateUserInfoSpy: SinonSpy, findOneAndUpdateStub: SinonStub;
 
 		before('setup spies and stubs', function() {
 			updateUserInfoSpy = spy(User, 'updateUserInfo');
@@ -242,10 +335,11 @@ describe('MongooseUserModel', function() {
 			findOneAndUpdateStub.restore();
 		});
 
-		afterEach('reset spy and stub history for each test', function() {
-			updateUserInfoSpy.resetHistory();
-			findOneAndUpdateStub.resetHistory();
-		});
+		// TODO: Is this necessary?
+		// afterEach('reset spy and stub history for each test', function() {
+		// 	updateUserInfoSpy.resetHistory();
+		// 	findOneAndUpdateStub.resetHistory();
+		// });
 
 		describe('with an invalid userID', function() {
 			it('should return a 400 error when the userID is an empty string', async function() {
@@ -344,6 +438,86 @@ describe('MongooseUserModel', function() {
 				});
 
 				expect(user).to.deep.equal(findOneAndUpdateResp);
+			});
+		});
+
+		describe('when a DB error occurs', function() {
+			const findOneAndUpdateErr = new Error('DB error');
+
+			before('setup stub error throwing', function() {
+				findOneAndUpdateStub.returns({
+					exec: stub().throws(findOneAndUpdateErr)
+				});
+			});
+
+			it('should throw a catchable error', async function() {
+				const userID = User.userIDFromCertificate(testerCert.toString());
+
+				let err: ErrorWithStatusCode;
+				try {
+					const user = await User.updateUserInfo(userID, {
+						info: {
+							firstNamespace: {
+								firstKey: 'bloop'
+							}
+						}
+					});
+				} catch (e) {
+					err = e;
+				}
+
+				expect(err).not.to.be.undefined;
+				expect(err).to.equal(findOneAndUpdateErr);
+			});
+		});
+	});
+
+
+	describe('#createUser', function() {
+		let createUserSpy: SinonSpy;
+		before('wrap createUser in a spy', function() {
+			createUserSpy = spy(User, 'createUser');
+		});
+
+		after('unwrap createUser', function() {
+			createUserSpy.restore();
+		});
+
+		describe('without a valid user certificate', function() {
+			it('should return a 400 error when given an empty string', async function() {
+				let err: ErrorWithStatusCode;
+				try {
+					const user = await User.createUser('');
+				} catch (e) {
+					err = e;
+				}
+
+				expect(err).not.to.be.undefined;
+				expect(err.message).to.equal('Public certificate must be a non-empty string');
+				expect(err.statusCode).to.equal(400);
+			});
+		});
+
+		describe('with a valid user certificate', function() {
+			let saveStub: SinonStub;
+			const saveResp = {
+				_id: fullUser._id,
+				cert: fullUser.cert
+			};
+
+			before('setup stub error throwing', function() {
+				saveStub = stub(User.prototype, 'save');
+				saveStub.resolves(saveResp);
+			});
+
+			after('restore stub', function() {
+				saveStub.restore();
+			});
+
+			it('should return a 200 status and the user when given a non-empty string', async function() {
+				const user = await User.createUser(fullUser.cert);
+
+				expect(user).to.deep.equal(saveResp);
 			});
 		});
 	});
