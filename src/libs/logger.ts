@@ -17,7 +17,7 @@ export default class Logger {
 	 *                          `__filename` as the parameter
 	 * @returns {WinstonLogger} Winston logging object
 	 */
-	static createLogger(filePath: string, logLevel: string = 'debug'): WinstonLogger {
+	static createLogger(filePath?: string, logLevel: string = 'debug'): WinstonLogger {
 		logLevel = process.env['LOG_LEVEL'] || logLevel;
 
 		const labelStr = Logger.makeLabel(filePath);
@@ -28,7 +28,7 @@ export default class Logger {
 				timestamp(),
 				colorize(),
 				printf((info) => {
-					if (typeof info.label === 'undefined' || info.label === null) {
+					if (typeof info.label === 'undefined' || !info.label) {
 						return `${info.timestamp} [${info.level}] ${info.message}`;
 					} else {
 						return `${info.timestamp} [${info.level}] [${info.label}] ${info.message}`;
@@ -57,7 +57,8 @@ export default class Logger {
 	 *                          `__filename` as the parameter
 	 * @returns {String} Label for the logger
 	 */
-	static makeLabel(filepath: string): string {
+	static makeLabel(filepath?: string): string {
+		if (!filepath || typeof (filepath) !== 'string') return '';
 		const filename = path.basename(filepath);
 		const pathParts = filepath.split('/');
 		let pathStr;
