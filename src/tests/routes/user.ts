@@ -13,11 +13,11 @@ import { ErrorWithStatusCode } from '../../libs/error-handler';
 import Util from '../../libs/util';
 
 // Load the TLS certs and keys for mutual TLS
-const caCert = fs.readFileSync('./src/tests/tls/intermediate.root.cert.pem');
-const serverKey = fs.readFileSync('./src/tests/tls/server.key.pem');
-const serverCert = fs.readFileSync('./src/tests/tls/server.cert.pem');
-const testerKey = fs.readFileSync('./src/tests/tls/tester.key.pem');
-const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem');
+const caCert = fs.readFileSync('./src/tests/tls/intermediate.root.cert.pem').toString();
+const serverKey = fs.readFileSync('./src/tests/tls/server.key.pem').toString();
+const serverCert = fs.readFileSync('./src/tests/tls/server.cert.pem').toString();
+const testerKey = fs.readFileSync('./src/tests/tls/tester.key.pem').toString();
+const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem').toString();
 
 const port = Util.getPort();
 
@@ -30,7 +30,7 @@ const { expect } = chai;
 // Pre-made response values
 const fullUser = {
 	_id: '1d809e203565ce392b7818222e16bf2cce1fb88e667468477dc314a475fe4a22',
-	cert: testerCert.toString('base64'),
+	cert: new Buffer(testerCert).toString('base64'),
 	info: {
 		firstNamespace: {
 			firstKey: 'firstVal',

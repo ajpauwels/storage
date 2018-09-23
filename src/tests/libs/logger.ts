@@ -29,7 +29,7 @@ describe('Logger', function() {
 		});
 
 		it('should not include the label when none given', function() {
-			const logger = Logger.createLogger(null, 'info');
+			const logger = Logger.createLogger(undefined, 'info');
 			logger.info('info');
 
 			expect(logger.format).to.not.be.undefined;
