@@ -21,8 +21,8 @@ const router = Router();
 /**
  * Retrieves the specified info fields from the authenticated user
  */
-router.get('/info/:namespace', [
-	param('namespace')
+router.get('/info/:key?', [
+	param('key')
 		.trim()
 		.escape(),
 	query('keys')
@@ -34,25 +34,24 @@ router.get('/info/:namespace', [
 		return next();
 	}
 ], (req: Request, res: Response, next: NextFunction) => {
-	const namespaceStr: string = req.params.namespace;
+	const keyStr: string = req.params.key;
 	const keysStr: string = req.query.keys;
 
-	// Create the array of info names
 	let keyPaths: string[];
-	if (typeof (keysStr) === 'string' && keysStr.length > 0) {
-		keyPaths = keysStr.split(' ').map((keyPath) => {
-			return `info.${namespaceStr}.${keyPath}`;
-		});
+	if (keysStr) {
+		keyPaths = keysStr.split(/,[ ]+/);
+	} else {
+		keyPaths = [];
 	}
+
+	if (keyStr) keyPaths.push(keyStr);
+	keyPaths = keyPaths.map((keyPath) => {
+		return `info.${keyPath}`;
+	});
 
 	return User.getUser(res.locals.user.id, keyPaths)
 		.then((user: IUser) => {
-			if (!user.info || !user.info[namespaceStr]) {
-				const err = new ErrorWithStatusCode(`Namespace '${namespaceStr}' not found`, 404);
-				throw err;
-			}
-
-			return res.json(user);
+			return res.json(user.info);
 		})
 		.catch((err: ErrorWithStatusCode) => {
 			return next(err);
