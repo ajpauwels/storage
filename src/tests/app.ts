@@ -78,7 +78,7 @@ describe('app', function() {
 
 					expect(err).to.not.be.undefined;
 					expect(err).to.be.instanceOf(ErrorWithStatusCode);
-					expect(err.message).to.be.equal(thrownError.message)
+					expect(err.message).to.be.equal(thrownError.message);
 					expect(err.statusCode).to.be.equal(thrownError.statusCode);
 				});
 			});
