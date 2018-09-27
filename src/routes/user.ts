@@ -34,20 +34,25 @@ router.get('/info/:key?', [
 		return next();
 	}
 ], (req: Request, res: Response, next: NextFunction) => {
-	const keyStr: string = req.params.key;
-	const keysStr: string = req.query.keys;
+	const paramKeys: string = req.params.key;
+	const queryKeys: string = req.query.keys;
 
-	let keyPaths: string[];
-	if (keysStr) {
-		keyPaths = keysStr.split(/,[ ]+/);
-	} else {
-		keyPaths = [];
+	let keyPaths: string[] = [];
+	if (paramKeys) {
+		const paramKeyPaths = paramKeys.split(/,[ ]+/).map((keyPath) => {
+			return `info.${keyPath}`;
+		});
+
+		keyPaths = keyPaths.concat(paramKeyPaths);
 	}
 
-	if (keyStr) keyPaths.push(keyStr);
-	keyPaths = keyPaths.map((keyPath) => {
-		return `info.${keyPath}`;
-	});
+	if (queryKeys) {
+		const queryKeyPaths = queryKeys.split(/,[ ]+/).map((keyPath) => {
+			return `info.${keyPath}`;
+		});
+
+		keyPaths = keyPaths.concat(queryKeyPaths);
+	}
 
 	return User.getUser(res.locals.user.id, keyPaths)
 		.then((user: IUser) => {
