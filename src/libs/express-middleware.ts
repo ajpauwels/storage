@@ -52,6 +52,6 @@ const ExpressMiddleware: any = {
 			return next();
 		}
 	}
-}
+};
 
 export default ExpressMiddleware;

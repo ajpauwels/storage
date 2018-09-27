@@ -18,6 +18,8 @@ const serverKey = fs.readFileSync('./src/tests/tls/server.key.pem').toString();
 const serverCert = fs.readFileSync('./src/tests/tls/server.cert.pem').toString();
 const testerKey = fs.readFileSync('./src/tests/tls/tester.key.pem').toString();
 const testerCert = fs.readFileSync('./src/tests/tls/tester.cert.pem').toString();
+const unsignedKey = fs.readFileSync('./src/tests/tls/unsigned.key.pem').toString();
+const unsignedCert = fs.readFileSync('./src/tests/tls/unsigned.cert.pem').toString();
 
 const port = Util.getPort();
 
@@ -56,7 +58,7 @@ const fullUser = {
 	}
 };
 
-describe('GET /users/info/:namespace', function() {
+describe('GET /users/info', function() {
 	describe('with a mutual TLS certificate signed by the server\'s CA', function() {
 		let fetchOpts: any, httpsAgent: https.Agent;
 
@@ -75,158 +77,35 @@ describe('GET /users/info/:namespace', function() {
 		});
 
 		describe('where the certificate has a registered user', function() {
-			describe('with a namespace that exists', function() {
-				describe('without any provided keypaths in the \'keys\' GET param', async function() {
-					const getUserStubResp = fullUser;
-					let getUserStub: SinonStub;
+			describe('without any provided keypaths in the URL or query params', async function() {
+				const getUserStubResp = fullUser;
+				let getUserStub: SinonStub;
 
-					before('set up stubs', function() {
-						getUserStub = stub(User, 'getUser');
-						getUserStub.resolves(getUserStubResp);
-					});
-
-					after('restore stubs', function() {
-						getUserStub.restore();
-					});
-
-					it('should return a 200 with the full user', async function() {
-						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace`, fetchOpts);
-						const responseJSON = await res.json();
-
-						expect(responseJSON).to.deep.equal(getUserStubResp);
-						expect(res.status).to.equal(200);
-					});
+				before('set up stubs', function() {
+					getUserStub = stub(User, 'getUser');
+					getUserStub.resolves(getUserStubResp);
 				});
 
-				describe('with one provided keypath in the \'keys\' GET param', async function() {
-					const getUserStubResp = {
-						_id: fullUser._id,
-						cert: fullUser.cert,
-						info: {
-							firstNamespace: {
-								firstKey: fullUser.info.firstNamespace.firstKey
-							}
-						}
-					};
-					let getUserStub: SinonStub;
-
-					before('set up stubs', function() {
-						getUserStub = stub(User, 'getUser');
-						getUserStub.resolves(getUserStubResp);
-					});
-
-					after('restore stubs', function() {
-						getUserStub.restore();
-					});
-
-					it('should return a 200 with the user object containing the one provided keypath', async function() {
-						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace?keys=firstKey`, fetchOpts);
-						const responseJSON = await res.json();
-
-						expect(responseJSON).to.deep.equal(getUserStubResp);
-						expect(res.status).to.equal(200);
-					});
+				after('restore stubs', function() {
+					getUserStub.restore();
 				});
 
-				describe('with more than one provided keypath in the \'keys\' GET param', async function() {
-					const getUserStubResp = {
-						_id: fullUser._id,
-						cert: fullUser.cert,
-						info: {
-							firstNamespace: {
-								firstKey: fullUser.info.firstNamespace.firstKey,
-								secondKey: fullUser.info.firstNamespace.secondKey,
-								thirdKey: fullUser.info.firstNamespace.thirdKey
-							}
-						}
-					};
-					let getUserStub: SinonStub;
+				it('should return a 200 with the full user info object', async function() {
+					const res = await fetch(`https://localhost:${port}/users/info`, fetchOpts);
+					const responseJSON = await res.json();
 
-					before('set up stubs', function() {
-						getUserStub = stub(User, 'getUser');
-						getUserStub.resolves(getUserStubResp);
-					});
-
-					after('restore stubs', function() {
-						getUserStub.restore();
-					});
-
-					it('should return a 200 with the user object containing all of the provided keypaths', async function() {
-						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace?keys=firstKey secondKey thirdKey`, fetchOpts);
-						const responseJSON = await res.json();
-
-						expect(responseJSON).to.deep.equal(getUserStubResp);
-						expect(res.status).to.equal(200);
-					});
-				});
-
-				describe('with a keypath that uses dot-notation', function() {
-					const getUserStubResp = {
-						_id: fullUser._id,
-						cert: fullUser.cert,
-						info: {
-							firstNamespace: {
-								thirdKey: [
-									fullUser.info.firstNamespace.thirdKey[4]
-								]
-							}
-						}
-					};
-					let getUserStub: SinonStub;
-
-					before('set up stubs', function() {
-						getUserStub = stub(User, 'getUser');
-						getUserStub.resolves(getUserStubResp);
-					});
-
-					after('restore stubs', function() {
-						getUserStub.restore();
-					});
-
-					it('should return a 200 with the user object containing only the portion of the info requested', async function() {
-						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace?keys=firstKey secondKey thirdKey`, fetchOpts);
-						const responseJSON = await res.json();
-
-						expect(responseJSON).to.deep.equal(getUserStubResp);
-						expect(res.status).to.equal(200);
-					});
-				});
-
-				describe('with a keypath that exists and a keypath that doesn\'t exist', function() {
-					const getUserStubResp = {
-						_id: fullUser._id,
-						cert: fullUser.cert,
-						info: {
-							firstNamespace: {
-								thirdKey: fullUser.info.firstNamespace.thirdKey
-							}
-						}
-					};
-					let getUserStub: SinonStub;
-
-					before('set up stubs', function() {
-						getUserStub = stub(User, 'getUser');
-						getUserStub.resolves(getUserStubResp);
-					});
-
-					after('restore stubs', function() {
-						getUserStub.restore();
-					});
-
-					it('should return a 200 with the user object containing the keypath that exists and no reference to the one which doesn\'t', async function() {
-						const res = await fetch(`https://localhost:${port}/users/info/firstNamespace?keys=firstKey bloop`, fetchOpts);
-						const responseJSON = await res.json();
-
-						expect(responseJSON).to.deep.equal(getUserStubResp);
-						expect(res.status).to.equal(200);
-					});
+					expect(responseJSON).to.deep.equal(getUserStubResp.info);
+					expect(res.status).to.equal(200);
 				});
 			});
 
-			describe('with a namespace that doesn\'t exist', function() {
+			describe('with one provided keypath', async function() {
 				const getUserStubResp = {
-					_id: fullUser._id,
-					cert: fullUser.cert
+					info: {
+						firstNamespace: {
+							firstKey: fullUser.info.firstNamespace.firstKey
+						}
+					}
 				};
 				let getUserStub: SinonStub;
 
@@ -239,12 +118,114 @@ describe('GET /users/info/:namespace', function() {
 					getUserStub.restore();
 				});
 
-				it('should return a 404 error and indicate the namespace could not be found', async function() {
-					const res = await fetch(`https://localhost:${port}/users/info/badNamespace`, fetchOpts);
+				it('should return a 200 with the info requested when the path is provided in the URL', async function() {
+					const res = await fetch(`https://localhost:${port}/users/info/firstNamespace.firstKey`, fetchOpts);
 					const responseJSON = await res.json();
 
-					expect(responseJSON.message).to.equal('Namespace \'badNamespace\' not found');
-					expect(res.status).to.equal(404);
+					expect(responseJSON).to.deep.equal(getUserStubResp.info);
+					expect(res.status).to.equal(200);
+				});
+
+				it('should return a 200 with the info requested when the path is provided in the query params', async function() {
+					const res = await fetch(`https://localhost:${port}/users/info?keys=firstNamespace.firstKey`, fetchOpts);
+					const responseJSON = await res.json();
+
+					expect(responseJSON).to.deep.equal(getUserStubResp.info);
+					expect(res.status).to.equal(200);
+				});
+			});
+
+			describe('with more than one provided keypath', async function() {
+				const getUserStubResp = {
+					_id: fullUser._id,
+					cert: fullUser.cert,
+					info: {
+						firstNamespace: {
+							firstKey: fullUser.info.firstNamespace.firstKey,
+							secondKey: fullUser.info.firstNamespace.secondKey,
+							thirdKey: fullUser.info.firstNamespace.thirdKey
+						}
+					}
+				};
+				let getUserStub: SinonStub;
+
+				before('set up stubs', function() {
+					getUserStub = stub(User, 'getUser');
+					getUserStub.resolves(getUserStubResp);
+				});
+
+				after('restore stubs', function() {
+					getUserStub.restore();
+				});
+
+				it('should return a 200 with the info when the keypaths are in the URL params', async function() {
+					const res = await fetch(`https://localhost:${port}/users/info/firstKey,secondKey,thirdKey`, fetchOpts);
+					const responseJSON = await res.json();
+
+					expect(responseJSON).to.deep.equal(getUserStubResp.info);
+					expect(res.status).to.equal(200);
+				});
+			});
+
+			describe('with a keypath that uses dot-notation', function() {
+				const getUserStubResp = {
+					_id: fullUser._id,
+					cert: fullUser.cert,
+					info: {
+						firstNamespace: {
+							thirdKey: [
+								fullUser.info.firstNamespace.thirdKey[4]
+							]
+						}
+					}
+				};
+				let getUserStub: SinonStub;
+
+				before('set up stubs', function() {
+					getUserStub = stub(User, 'getUser');
+					getUserStub.resolves(getUserStubResp);
+				});
+
+				after('restore stubs', function() {
+					getUserStub.restore();
+				});
+
+				it('should return a 200 with the user object containing only the portion of the info requested', async function() {
+					const res = await fetch(`https://localhost:${port}/users/info?keys=firstNamespace.firstKey,firstNamespace.secondKey,firstNamespace.thirdKey`, fetchOpts);
+					const responseJSON = await res.json();
+
+					expect(responseJSON).to.deep.equal(getUserStubResp.info);
+					expect(res.status).to.equal(200);
+				});
+			});
+
+			describe('with a keypath that exists and a keypath that doesn\'t exist', function() {
+				const getUserStubResp = {
+					_id: fullUser._id,
+					cert: fullUser.cert,
+					info: {
+						firstNamespace: {
+							thirdKey: fullUser.info.firstNamespace.thirdKey
+						}
+					}
+				};
+				let getUserStub: SinonStub;
+
+				before('set up stubs', function() {
+					getUserStub = stub(User, 'getUser');
+					getUserStub.resolves(getUserStubResp);
+				});
+
+				after('restore stubs', function() {
+					getUserStub.restore();
+				});
+
+				it('should return a 200 with the user object containing the keypath that exists and no reference to the one which doesn\'t', async function() {
+					const res = await fetch(`https://localhost:${port}/users/info?keys=firstNamespace.firstKey firstNamespace.bloop`, fetchOpts);
+					const responseJSON = await res.json();
+
+					expect(responseJSON).to.deep.equal(getUserStubResp.info);
+					expect(res.status).to.equal(200);
 				});
 			});
 		});
