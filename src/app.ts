@@ -6,6 +6,7 @@ import https from 'https';
 import mongoose from 'mongoose';
 import bluebird from 'bluebird';
 import { TLSSocket } from 'tls';
+import helmet from 'helmet';
 
 // Third-party middleware
 import bodyParser from 'body-parser';
@@ -26,6 +27,9 @@ import usersRoutes from './routes/user';
 
 // Create the express app
 const app = express();
+
+// Attach Helmet to provide basic safety precautions
+app.use(helmet());
 
 // Attach JSON and URL-encoded body parsers
 app.use(bodyParser.json({
