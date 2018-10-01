@@ -6,6 +6,7 @@ import https from 'https';
 import mongoose from 'mongoose';
 import bluebird from 'bluebird';
 import { TLSSocket } from 'tls';
+import helmet from 'helmet';
 
 // Third-party middleware
 import bodyParser from 'body-parser';
@@ -26,6 +27,9 @@ import usersRoutes from './routes/user';
 
 // Create the express app
 const app = express();
+
+// Attach Helmet to provide basic safety precautions
+app.use(helmet());
 
 // Attach JSON and URL-encoded body parsers
 app.use(bodyParser.json({
@@ -52,7 +56,7 @@ let httpsServer: https.Server;
 // Get the SSL keys
 const tlsKey: string = process.env['SERVER_KEY'];
 const tlsCert: string = process.env['SERVER_CERT'];
-const caChain: string = process.env['CA_CHAIN'];
+const caChain: string = process.env['SERVER_CA_CHAIN'];
 
 // Start the server with the given TLS certs
 start(tlsKey, tlsCert, caChain);
