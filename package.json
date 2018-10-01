@@ -53,7 +53,6 @@
 	},
 	"homepage": "https://github.com/ajpauwels/storage#readme",
 	"dependencies": {
-		"@types/helmet": "0.0.42",
 		"async": "^2.6.1",
 		"bluebird": "^3.5.1",
 		"express": "^4.16.3",
@@ -70,6 +69,7 @@
 		"@types/bluebird": "^3.5.20",
 		"@types/chai": "^4.1.4",
 		"@types/express": "^4.16.0",
+		"@types/helmet": "0.0.42",
 		"@types/mocha": "^5.2.5",
 		"@types/mongoose": "^5.0.15",
 		"@types/node-fetch": "^2.1.2",
