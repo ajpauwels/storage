@@ -5,6 +5,13 @@ before_script:
   - "npm install"
 script:
   - "npm run test"
+env:
+  global:
+    - SERVER_KEY=./src/tests/tls/server.key.pem
+    - SERVER_CERT=./src/tests/tls/server.cert.pem
+    - SERVER_CA_CHAIN=./src/tests/tls/intermediate.root.cert.pem
+    - ZONE=testing
+    - PORT=3002
 cache:
   directories:
     - "node modules"

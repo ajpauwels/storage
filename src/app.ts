@@ -54,9 +54,9 @@ app.use(errorHandler);
 let httpsServer: https.Server;
 
 // Get the SSL keys
-const tlsKey: string = process.env['SERVER_KEY'];
-const tlsCert: string = process.env['SERVER_CERT'];
-const caChain: string = process.env['SERVER_CA_CHAIN'];
+const tlsKey: string = Util.getServerKey();
+const tlsCert: string = Util.getServerCert();
+const caChain: string = Util.getServerCAChain();
 
 // Start the server with the given TLS certs
 start(tlsKey, tlsCert, caChain);
@@ -94,7 +94,7 @@ export async function start(tlsKey: string, tlsCert: string, caChain: string): P
 	});
 
 	// Setup our DB connection
-	if (zone !== 'test') {
+	if (zone !== 'testing') {
 		// Check if we have our DB_URL
 		const dbURL = process.env['MONGODB_URL'];
 		if (!dbURL) {

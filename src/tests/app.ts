@@ -31,7 +31,7 @@ describe('app', function() {
 			connectStub.restore();
 		});
 
-		describe('when env ZONE is not set to \'test\'', function() {
+		describe('when env ZONE is not set to \'testing\'', function() {
 			describe('and no MONGODB_URL is set', function() {
 				it('should throw a 400 error', async function() {
 					process.env['ZONE'] = 'prod';
@@ -84,9 +84,9 @@ describe('app', function() {
 			});
 		});
 
-		describe('when env ZONE is set to \'test\'', function() {
+		describe('when env ZONE is set to \'testing\'', function() {
 			before('setup env', function() {
-				process.env['ZONE'] = 'test';
+				process.env['ZONE'] = 'testing';
 			});
 
 			describe('when no TLS details are provided', function() {

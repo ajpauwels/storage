@@ -70,5 +70,8 @@ envs
 # Compiled TS folder
 /dist
 
+# Env folder shouldn't be sent up
+/env
+
 # NYC's coverage folder
 coverage
