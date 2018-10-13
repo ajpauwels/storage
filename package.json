@@ -16,16 +16,16 @@
 		"watch-tslint": "./node_modules/nodemon/bin/nodemon.js --exec \"npm run tslint\" -e ts",
 		"debug": "npm run tslint && npm run serve-ts",
 		"watch-debug": "./node_modules/concurrently/bin/concurrently.js -k -p \"[{name}]\" -n \"Lint,Run\" -c \"yellow.bold,cyan.bold\" \"npm run watch-tslint\" \"npm run watch-ts\"",
-		"test+cov": "ZONE=test ./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts src/tests/*.ts",
-		"test": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts src/tests/*.ts",
-		"test+cov-some": "ZONE=test ./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit",
-		"test-some": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit",
-		"test-landing": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts src/tests/*.ts --reporter landing",
-		"test-nyan": "ZONE=test ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts src/tests/*.ts --reporter nyan",
-		"watch-test+cov": "ZONE=test ./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run test+cov\"",
-		"watch-test": "ZONE=test ./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run test\"",
-		"watch-test+cov-some": "ZONE=test ./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run test+cov-some\"",
-		"watch-test-some": "ZONE=test ./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run test-some\""
+		"test+cov": "./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts src/tests/*.ts",
+		"test": "./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts src/tests/*.ts",
+		"test+cov-some": "./node_modules/nyc/bin/nyc.js --reporter=text ./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit",
+		"test-some": "./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit",
+		"test-landing": "./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts src/tests/*.ts --reporter landing",
+		"test-nyan": "./node_modules/mocha/bin/mocha --require ts-node/register --require source-map-support/register --full-trace --exit src/tests/**/*.ts src/tests/*.ts --reporter nyan",
+		"watch-test+cov": "./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run test+cov\"",
+		"watch-test": "./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run test\"",
+		"watch-test+cov-some": "./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run test+cov-some\"",
+		"watch-test-some": "./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run test-some\""
 	},
 	"nyc": {
 		"include": [

@@ -23,9 +23,6 @@ const unsignedCert = fs.readFileSync('./src/tests/tls/unsigned.cert.pem').toStri
 
 const port = Util.getPort();
 
-// Start the express app
-startServer(serverKey, serverCert, caCert);
-
 // Extract the expect lib out of Chai
 const { expect } = chai;
 

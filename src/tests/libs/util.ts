@@ -1,4 +1,5 @@
 import chai from 'chai';
+import fs from 'fs';
 import Util from '../../libs/util';
 
 const { expect } = chai;
@@ -52,6 +53,93 @@ describe('Util', function() {
 		});
 	});
 
+	describe('#getServerKey', function() {
+		it('should return the TLS key when provided with a valid path', function() {
+			process.env['SERVER_KEY'] = './src/tests/tls/server.key.pem';
+			const serverKey: string = fs.readFileSync('./src/tests/tls/server.key.pem').toString();
+
+			const utilServerKey = Util.getServerKey();
+
+			expect(utilServerKey).to.equal(serverKey);
+		});
+
+		it('should return undefined when no path is defined', function() {
+			delete process.env['SERVER_KEY'];
+
+			const utilServerKey = Util.getServerKey();
+			expect(utilServerKey).to.be.undefined;
+		});
+
+		it('should throw an error when no path is defined', function() {
+			process.env['SERVER_KEY'] = 'feiufei';
+
+			try {
+				const utilServerKey = Util.getServerKey();
+			} catch (err) {
+				expect(err).to.not.be.undefined;
+				expect(err).to.be.instanceOf(Error);
+			}
+		});
+	});
+
+	describe('#getServerCert', function() {
+		it('should return the TLS cert when provided with a valid path', function() {
+			process.env['SERVER_CERT'] = './src/tests/tls/server.cert.pem';
+			const serverCert: string = fs.readFileSync('./src/tests/tls/server.cert.pem').toString();
+
+			const utilServerCert = Util.getServerCert();
+
+			expect(utilServerCert).to.equal(serverCert);
+		});
+
+		it('should return undefined when no path is defined', function() {
+			delete process.env['SERVER_CERT'];
+
+			const utilServerCert = Util.getServerCert();
+			expect(utilServerCert).to.be.undefined;
+		});
+
+		it('should throw an error when no path is defined', function() {
+			process.env['SERVER_CERT'] = 'feiufheiu';
+
+			try {
+				const utilServerCert = Util.getServerCert();
+			} catch (err) {
+				expect(err).to.not.be.undefined;
+				expect(err).to.be.instanceOf(Error);
+			}
+		});
+	});
+
+	describe('#getServerCAChain', function() {
+		it('should return the TLS CA chain when provided with a valid path', function() {
+			process.env['SERVER_CA_CHAIN'] = './src/tests/tls/intermediate.root.cert.pem';
+			const caChain: string = fs.readFileSync('./src/tests/tls/intermediate.root.cert.pem').toString();
+
+			const utilCAChain = Util.getServerCAChain();
+
+			expect(utilCAChain).to.equal(caChain);
+		});
+
+		it('should return undefined when no path is defined', function() {
+			delete process.env['SERVER_CA_CHAIN'];
+
+			const utilServerCAChain = Util.getServerCAChain();
+			expect(utilServerCAChain).to.be.undefined;
+		});
+
+		it('should throw an error when an invalid path is defined', function() {
+			process.env['SERVER_CA_CHAIN'] = 'frwifheiu';
+
+			try {
+				const utilServerKey = Util.getServerKey();
+			} catch (err) {
+				expect(err).to.not.be.undefined;
+				expect(err).to.be.instanceOf(Error);
+			}
+		});
+	});
+
 	describe('#getZone', function() {
 		it('should return \'dev\' when env var \'ZONE\' is set to \'dev\'', function() {
 			process.env['ZONE'] = 'dev';
@@ -77,12 +165,12 @@ describe('Util', function() {
 			expect(zone).to.equal('prod');
 		});
 
-		it('should return \'test\' when env var \'ZONE\' is set to \'test\'', function() {
-			process.env['ZONE'] = 'test';
+		it('should return \'testing\' when env var \'ZONE\' is set to \'testing\'', function() {
+			process.env['ZONE'] = 'testing';
 
 			const zone = Util.getZone();
 
-			expect(zone).to.equal('test');
+			expect(zone).to.equal('testing');
 		});
 
 		it('should return \'prod\' when env var \'ZONE\' is undefined', function() {

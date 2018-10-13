@@ -38,7 +38,7 @@ export default class Logger {
 			level: logLevel,
 			transports: [
 				new transports.Console({
-					silent: Util.getZone() === 'test'
+					silent: Util.getZone() === 'testing'
 				})
 			]
 		});

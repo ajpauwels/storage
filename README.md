@@ -21,9 +21,9 @@ Authentication is performed via mutual TLS.
 5. The storage component requires 4 environment variables to run, and has a further 2 optional environment variables. I've provided a mostly ready-to-go file below, the only exception being you'll need to provide your own MongoDB. I highly recommend using the services of [mLab](https://mlab.com), which will get you setup with a free, easily accessible MongoDB in about 5 minutes flat. Simply copy the code below to `./env/local.env` and load the env into your terminal window using `source ./env/local.env`.
 ```bash
 export MONGODB_URL=mongodb://<username>:<password>@<URL to MongoDB>:<port>/<DB name>
-export SERVER_KEY=$(cat ./src/tests/tls/storage.key.pem)
-export SERVER_CERT=$(cat ./src/tests/tls/storage.cert.pem)
-export SERVER_CA_CHAIN=$(cat ./src/tests/tls/trusted.intermediate.root.cert.pem)
+export SERVER_KEY=./src/tests/tls/server.key.pem
+export SERVER_CERT=./src/tests/tls/server.cert.pem
+export SERVER_CA_CHAIN=./src/tests/tls/intermediate.root.cert.pem
 export ZONE=dev
 export PORT=3002
 ```
@@ -32,6 +32,7 @@ export PORT=3002
 
 ### Usage
 You can communicate with the storage app using a simple REST interface. The cURL commands to do so are provided for you in the `curl` directory. Below I will outline how to create a new user, patch it with new information, and then request that information.
+
 0. Before starting, know that you need to have cURL and jq installed on your machine. You can do so using the package manager that comes with your OS.
 
 1. Navigate to the curl directory using `cd ./curl` from the root of the project.
@@ -62,9 +63,9 @@ The package.json scripts look daunting but in fact follow a very simple pattern 
 ### Appendix A: Explanation of env variables
 1. MONGODB\_URL: URL to a valid MongoDB instance containing username and password in the URL. Instead of going through the process of setting this up locally, I recommend grabbing a free database over at [https://mlab.com/](https://mlab.com). Disclaimer: I have no affiliation with mLab, I simply like what they offer.
 
-2. SERVER\_KEY: A private key used for mutual TLS communication. For testing purposes, you can use the pre-packaged TLS key provided in the test folder at `src/tests/tls/server.key.pem`. Note that this should be the actual key, not a path to the key.
+2. SERVER\_KEY: Path to the private key used for mutual TLS communication. For testing purposes, you can use the pre-packaged TLS key provided in the test folder at `src/tests/tls/server.key.pem`.
 
-3. SERVER\_CERT: The public certificate that goes with the SERVER\_KEY. You can find one at `src/tests/tls/server.cert.pem`. This should be the actual cert, not a path to the cert.
+3. SERVER\_CERT: Path to the public certificate that goes with the SERVER\_KEY. You can find one at `src/tests/tls/server.cert.pem`.
 
 4. SERVER\_CA\_CHAIN: Chain of CAs going from the CA which signed the server cert up to a root CA recognized by the browser. You can find this at `src/tests/tls/intermediate.root.cert.pem`.
 
